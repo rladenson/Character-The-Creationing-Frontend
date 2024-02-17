@@ -1,11 +1,12 @@
 <script>
     import { Nav, NavItem, NavLink, Navbar, NavbarBrand } from "@sveltestrap/sveltestrap";
-    export let data;
+    import { page } from "$app/stores";
+    import { enhance } from '$app/forms';
 </script>
 <Navbar color="dark" theme="dark">
     <NavbarBrand href="/">Home</NavbarBrand>
     <Nav underline theme="dark">
-        {#if !data.jwt}
+        {#if !$page.data.jwt}
             <NavItem>
                 <NavLink href="login">Login</NavLink>
             </NavItem>
@@ -14,7 +15,9 @@
             </NavItem>
         {:else}
             <NavItem>
-                <NavLink href="logout">Logout</NavLink>
+                    <form class="nav-link" method="POST" action="/?/logout" use:enhance>
+                        <button type="submit" style="all: unset; cursor: pointer;">Logout</button>
+                    </form>
             </NavItem>
         {/if}
     </Nav>

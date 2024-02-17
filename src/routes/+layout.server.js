@@ -1,5 +1,5 @@
-export function load({ cookies }) {
+export async function load({ cookies }) {
     return {
-        jwt: cookies.get("jwt")
+        jwt: await cookies.get("jwt")
     }
 }
