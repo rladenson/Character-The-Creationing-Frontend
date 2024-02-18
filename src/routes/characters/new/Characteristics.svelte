@@ -1,12 +1,13 @@
 <script>
-	import { Form, Input, FormGroup, Button, Table } from '@sveltestrap/sveltestrap';
+	import { Input, FormGroup, Table, Button } from '@sveltestrap/sveltestrap';
 	import { browser } from '$app/environment';
 	export let character;
+    let characteristics = character.characteristics;
 	let mental = 3;
 	$: mental =
-		Number(character.characteristics.intelligence || 0) +
-		Number(character.characteristics.wisdom || 0) +
-		Number(character.characteristics.willpower || 0);
+		Number(characteristics.intelligence || 0) +
+		Number(characteristics.wisdom || 0) +
+		Number(characteristics.willpower || 0);
 	$: if (mental > 8 || mental < 3) {
 		if (browser) {
 			const tot = document.getElementById('mental-total');
@@ -24,9 +25,9 @@
 	}
 	let physical = 3;
 	$: physical =
-		Number(character.characteristics.strength || 0) +
-		Number(character.characteristics.dexterity || 0) +
-		Number(character.characteristics.constitution || 0);
+		Number(characteristics.strength || 0) +
+		Number(characteristics.dexterity || 0) +
+		Number(characteristics.constitution || 0);
 	$: if (physical > 8) {
 		if (browser) {
 			const tot = document.getElementById('physical-total');
@@ -44,9 +45,9 @@
 	}
 	let social = 3;
 	$: social =
-		Number(character.characteristics.charisma || 0) +
-		Number(character.characteristics.fellowship || 0) +
-		Number(character.characteristics.composure || 0);
+		Number(characteristics.charisma || 0) +
+		Number(characteristics.fellowship || 0) +
+		Number(characteristics.composure || 0);
 	$: if (social > 8) {
 		if (browser) {
 			const tot = document.getElementById('social-total');
@@ -85,7 +86,7 @@
 							required
 							min="1"
 							max="4"
-							bind:value={character.characteristics.intelligence}
+							bind:value={characteristics.intelligence}
 						/>
 					</FormGroup>
 				</td>
@@ -96,7 +97,7 @@
 							required
 							min="1"
 							max="4"
-							bind:value={character.characteristics.strength}
+							bind:value={characteristics.strength}
 						/>
 					</FormGroup>
 				</td>
@@ -107,7 +108,7 @@
 							required
 							min="1"
 							max="4"
-							bind:value={character.characteristics.charisma}
+							bind:value={characteristics.charisma}
 						/>
 					</FormGroup>
 				</td>
@@ -121,7 +122,7 @@
 							required
 							min="1"
 							max="4"
-							bind:value={character.characteristics.wisdom}
+							bind:value={characteristics.wisdom}
 						/>
 					</FormGroup>
 				</td>
@@ -132,7 +133,7 @@
 							required
 							min="1"
 							max="4"
-							bind:value={character.characteristics.dexterity}
+							bind:value={characteristics.dexterity}
 						/>
 					</FormGroup>
 				</td>
@@ -143,7 +144,7 @@
 							required
 							min="1"
 							max="4"
-							bind:value={character.characteristics.fellowship}
+							bind:value={characteristics.fellowship}
 						/>
 					</FormGroup>
 				</td>
@@ -157,7 +158,7 @@
 							required
 							min="1"
 							max="4"
-							bind:value={character.characteristics.willpower}
+							bind:value={characteristics.willpower}
 						/>
 					</FormGroup>
 				</td>
@@ -168,7 +169,7 @@
 							required
 							min="1"
 							max="4"
-							bind:value={character.characteristics.constitution}
+							bind:value={characteristics.constitution}
 						/>
 					</FormGroup>
 				</td>
@@ -179,7 +180,7 @@
 							required
 							min="1"
 							max="4"
-							bind:value={character.characteristics.composure}
+							bind:value={characteristics.composure}
 						/>
 					</FormGroup>
 				</td>
@@ -187,7 +188,13 @@
 			<tr>
 				<th scope="row">Total</th>
 				<td>
-					<Input type="number" readonly id="mental-total" bind:value={mental} class="is-valid" />
+					<Input 
+                        type="number" 
+                        readonly 
+                        id="mental-total" 
+                        bind:value={mental} 
+                        class="is-valid"
+                    />
 				</td>
 				<td>
 					<Input

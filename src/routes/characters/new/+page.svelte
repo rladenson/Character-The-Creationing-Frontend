@@ -51,7 +51,7 @@
 	};
 </script>
 
-<Form {validated} on:submit={handleSubmit} method="POST">
+<Form {validated} on:submit={handleSubmit}>
 	<h1>New Character</h1>
 	{#if page === 1}
 		<Flavor bind:character />
