@@ -1,30 +1,31 @@
 <script>
-    const signup = (e) => {
+	import { baseUrl } from '$lib/stores.js';
+	import { browser } from '$app/environment';
+
+    const signup = async (e) => {
         e.preventDefault();
+
+        if(browser) {
+            const data = new FormData(e.target);
+
+			const dataObj = {
+				username: data.get('username'),
+				password: data.get('password')
+			};
+
+            const res = await fetch(baseUrl + 'api/auth/signup', {
+				method: 'POST',
+				body: JSON.stringify(dataObj),
+				headers: {
+					'content-type': 'application/json'
+				}
+			});
+
+			if (res.status === 200) {
+				window.location.replace('/login');
+			}
+        }
     }
-
-//     export const actions = {
-//     default: async ({ request, cookies }) => {
-//         const data = await request.formData();
-//         const dataObj = {
-//             username: data.get("username"),
-//             password: data.get("password")
-//         }
-
-//         const res = await fetch("http://localhost:8080/api/auth/signup", {
-//             method: "POST",
-//             body: JSON.stringify(dataObj),
-//             headers: {
-//                 "content-type": "application/json"
-//             }
-//         })
-
-//         if(res.status === 200) {
-//             redirect(307, "/login");
-//         }
-        
-//     }
-// }
 </script>
 
 <h1>Sign Up</h1>

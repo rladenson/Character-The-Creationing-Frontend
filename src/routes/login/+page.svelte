@@ -15,8 +15,7 @@
 				method: 'POST',
 				body: JSON.stringify(dataObj),
 				headers: {
-					'content-type': 'application/json',
-					'Access-Control-Allow-Origin': '*'
+					'content-type': 'application/json'
 				}
 			});
 
