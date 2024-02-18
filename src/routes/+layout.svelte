@@ -1,12 +1,18 @@
 <script>
     import { Nav, NavItem, NavLink, Navbar, NavbarBrand } from "@sveltestrap/sveltestrap";
     import { page } from "$app/stores";
-    import { enhance } from '$app/forms';
+
+    const logout = (e) => {
+        e.preventDefault();
+        localStorage.clear();
+        window.location.replace("/");
+    }
+
 </script>
 <Navbar color="dark" theme="dark">
     <NavbarBrand href="/">Home</NavbarBrand>
     <Nav underline theme="dark">
-        {#if !$page.data.jwt}
+        {#if !$page.data.token}
             <NavItem>
                 <NavLink href="login">Login</NavLink>
             </NavItem>
@@ -15,7 +21,7 @@
             </NavItem>
         {:else}
             <NavItem>
-                    <form class="nav-link" method="POST" action="/?/logout" use:enhance>
+                    <form class="nav-link" method="POST" on:submit={logout}>
                         <button type="submit" style="all: unset; cursor: pointer;">Logout</button>
                     </form>
             </NavItem>
