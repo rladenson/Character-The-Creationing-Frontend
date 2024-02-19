@@ -27,6 +27,9 @@
 		e.preventDefault();
 		switch (nextAction) {
 			case '+':
+				if(document.querySelector(".is-invalid")) {
+					return alert("Please fix errors before proceeding");
+				}
 				if (page < maxPage) page++;
 				validated = false;
 				break;
@@ -35,13 +38,12 @@
 				validated = false;
 				break;
 		}
-		if (page === 2) {
-			validated = true;
-		}
 	};
 	const handleClick = (e) => {
 		nextAction = e.target.dataset.action;
-		validated = true;
+		if(page !== 2) {
+			validated = true;
+		}
 	};
 	const resetProgress = (e) => {
 		e.preventDefault();
