@@ -5,77 +5,95 @@
 	let characteristics = character.characteristics;
 
 	const checkTotal = (stat, statMax, statName) => {
-		if (stat > statMax || stat < 3) {
+		switch (statName) {
+			case 'mental':
+				mental = updateCharacteristic(
+					characteristics.intelligence,
+					characteristics.wisdom,
+					characteristics.willpower,
+					mentalMax
+				);
+				break;
+			case 'physical':
+				physical = updateCharacteristic(
+					characteristics.strength,
+					characteristics.dexterity,
+					characteristics.constitution,
+					physicalMax
+				);
+				break;
+			case 'social':
+				social = updateCharacteristic(
+					characteristics.charisma,
+					characteristics.fellowship,
+					characteristics.composure,
+					socialMax
+				);
+				break;
+		}
+		const statVal = Number(stat.split(' ')[0]);
+		if (statVal != statMax) {
 			if (browser) {
-				const tot = document.getElementById(statName + "-total");
+				const tot = document.getElementById(statName + '-total');
 				if (tot) {
 					tot.classList.add('is-invalid');
 				}
 			}
 		} else {
 			if (browser) {
-				const tot = document.getElementById(statName + "-total");
+				const tot = document.getElementById(statName + '-total');
 				if (tot) {
 					tot.classList.remove('is-invalid');
 				}
 			}
 		}
 	};
+	const updateCharacteristic = (a, b, c, statMax) => {
+		return Number(a || 0) + Number(b || 0) + Number(c || 0) + ' out of ' + statMax;
+	};
 
 	let mental = 3;
 	let mentalMax = 9;
-	$: mental =
-		Number(characteristics.intelligence || 0) +
-		Number(characteristics.wisdom || 0) +
-		Number(characteristics.willpower || 0);
-	$: checkTotal(mental, mentalMax, "mental");
+	$: mental = updateCharacteristic(
+		characteristics.intelligence,
+		characteristics.wisdom,
+		characteristics.willpower,
+		mentalMax
+	);
+	$: checkTotal(mental, mentalMax, 'mental');
 
 	let physical = 3;
 	let physicalMax = 7;
-	$: physical =
-		Number(characteristics.strength || 0) +
-		Number(characteristics.dexterity || 0) +
-		Number(characteristics.constitution || 0);
-	$: checkTotal(physical, physicalMax, "physical");
+	$: physical = updateCharacteristic(
+		characteristics.strength,
+		characteristics.dexterity,
+		characteristics.constitution,
+		physicalMax
+	);
+	$: checkTotal(physical, physicalMax, 'physical');
 
 	let social = 3;
 	let socialMax = 5;
-	$: social =
-		Number(characteristics.charisma || 0) +
-		Number(characteristics.fellowship || 0) +
-		Number(characteristics.composure || 0);
-	$: checkTotal(social, socialMax, "social");
+	$: social = updateCharacteristic(
+		characteristics.charisma,
+		characteristics.fellowship,
+		characteristics.composure,
+		socialMax
+	);
+	$: checkTotal(social, socialMax, 'social');
 
 	let primary = 'Mental';
 	let secondary = 'Physical';
 	let tertiary = 'Social';
 	$: resolveConflicts(primary, secondary, tertiary);
-	const invalidate = (el) => {
-		el.classList.add('is-invalid');
+	const invalidate = () => {
 		document.getElementById('cha-dupe-error').removeAttribute('hidden');
 	};
 	const resolveConflicts = () => {
 		if (browser) {
 			try {
-				let primaryEl = document.getElementById('primary');
-				let secondaryEl = document.getElementById('secondary');
-				let tertiaryEl = document.getElementById('tertiary');
 				document.getElementById('cha-dupe-error').setAttribute('hidden', true);
-				primaryEl.classList.remove('is-invalid');
-				secondaryEl.classList.remove('is-invalid');
-				tertiaryEl.classList.remove('is-invalid');
-				if (primary == secondary) {
-					invalidate(primaryEl);
-					invalidate(secondaryEl);
-				}
-				if (primary == tertiary) {
-					invalidate(tertiaryEl);
-					invalidate(primaryEl);
-				}
-				if (tertiary == secondary) {
-					invalidate(tertiaryEl);
-					invalidate(secondaryEl);
-				}
+				if (primary === secondary || primary === tertiary || tertiary === secondary) invalidate();
 				switch (tertiary) {
 					case 'Mental':
 						mentalMax = 5;
@@ -109,9 +127,9 @@
 						socialMax = 9;
 						break;
 				}
-				checkTotal(mental, mentalMax, "mental");
-				checkTotal(physical, physicalMax, "physical");
-				checkTotal(social, socialMax, "social");
+				checkTotal(mental, mentalMax, 'mental');
+				checkTotal(physical, physicalMax, 'physical');
+				checkTotal(social, socialMax, 'social');
 			} catch {
 				return;
 			}
@@ -187,13 +205,30 @@
 		<tr>
 			<th scope="row">Total</th>
 			<td>
-				<Input readonly id="mental-total" bind:value={mental} class="is-valid" />
+				<Input
+					readonly
+					id="mental-total"
+					bind:value={mental}
+					class={mental.split(' ')[0] === mental.split(' ')[3] ? 'is-valid' : 'is-valid is-invalid'}
+				/>
 			</td>
 			<td>
-				<Input readonly id="physical-total" bind:value={physical} class="is-valid" />
+				<Input
+					readonly
+					id="physical-total"
+					bind:value={physical}
+					class={physical.split(' ')[0] === physical.split(' ')[3]
+						? 'is-valid'
+						: 'is-valid is-invalid'}
+				/>
 			</td>
 			<td>
-				<Input readonly id="social-total" bind:value={social} class="is-valid" />
+				<Input
+					readonly
+					id="social-total"
+					bind:value={social}
+					class={social.split(' ')[0] === social.split(' ')[3] ? 'is-valid' : 'is-valid is-invalid'}
+				/>
 			</td>
 		</tr>
 	</tbody>
