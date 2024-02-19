@@ -20,7 +20,13 @@
 			composure: 1
 		}
 	};
+	const recordBase = {
+		primary: "Mental",
+		secondary: "Physical",
+		tertiary: "Social"
+	}
 	let character = copy(characterBase);
+	let record = copy(recordBase);
 	let nextAction = '';
 	let open = false;
 	const toggle = () => (open = !open);
@@ -50,6 +56,7 @@
 	const resetProgress = (e) => {
 		e.preventDefault();
 		character = copy(characterBase);
+		record = copy(recordBase);
 		page = 1;
 		validated = false;
 	};
@@ -63,7 +70,7 @@
 	{#if page === 1}
 		<Flavor bind:character />
 	{:else if page === 2}
-		<Characteristics bind:character />
+		<Characteristics bind:character bind:record />
 	{/if}
 	<Button type="submit" on:click={handleClick} data-action="-" disabled={page <= 1}>
 		Previous Page

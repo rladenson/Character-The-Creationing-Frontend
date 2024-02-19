@@ -1,7 +1,7 @@
 <script>
 	import { Input, FormGroup, Table, Button, Alert } from '@sveltestrap/sveltestrap';
 	import { browser } from '$app/environment';
-	export let character;
+	export let character, record;
 	let characteristics = character.characteristics;
 
 	const checkTotal = (stat, statMax, statName) => {
@@ -30,22 +30,6 @@
 					socialMax
 				);
 				break;
-		}
-		const statVal = Number(stat.split(' ')[0]);
-		if (statVal != statMax) {
-			if (browser) {
-				const tot = document.getElementById(statName + '-total');
-				if (tot) {
-					tot.classList.add('is-invalid');
-				}
-			}
-		} else {
-			if (browser) {
-				const tot = document.getElementById(statName + '-total');
-				if (tot) {
-					tot.classList.remove('is-invalid');
-				}
-			}
 		}
 	};
 	const updateCharacteristic = (a, b, c, statMax) => {
@@ -82,18 +66,13 @@
 	);
 	$: checkTotal(social, socialMax, 'social');
 
-	let primary = 'Mental';
-	let secondary = 'Physical';
-	let tertiary = 'Social';
+	let primary = record.primary;
+	let secondary = record.secondary;
+	let tertiary = record.tertiary;
 	$: resolveConflicts(primary, secondary, tertiary);
-	const invalidate = () => {
-		document.getElementById('cha-dupe-error').removeAttribute('hidden');
-	};
 	const resolveConflicts = () => {
 		if (browser) {
 			try {
-				document.getElementById('cha-dupe-error').setAttribute('hidden', true);
-				if (primary === secondary || primary === tertiary || tertiary === secondary) invalidate();
 				switch (tertiary) {
 					case 'Mental':
 						mentalMax = 5;
@@ -138,6 +117,51 @@
 </script>
 
 <h2>Characteristics</h2>
+<Alert id="cha-dupe-error" color="danger" hidden={(primary !== secondary && primary !== tertiary && secondary !== tertiary) ? "" : null}>
+	Each priority (primary, secondary, tertiary) must have a unique characteristic category (mental,
+	physical, social).
+</Alert>
+<div id="characteristic-priorities">
+	<FormGroup floating label="Primary">
+		<Input
+			type="select"
+			class={primary === secondary || primary === tertiary ? 'is-invalid' : 'is-valid'}
+			style="width: unset"
+			bind:value={primary}
+			id="primary"
+		>
+			<option>Mental</option>
+			<option>Physical</option>
+			<option>Social</option>
+		</Input>
+	</FormGroup>
+	<FormGroup floating label="Secondary">
+		<Input
+			type="select"
+			class={secondary === primary || secondary === tertiary ? 'is-invalid' : 'is-valid'}
+			style="width: unset"
+			bind:value={secondary}
+			id="secondary"
+		>
+			<option>Mental</option>
+			<option>Physical</option>
+			<option>Social</option>
+		</Input>
+	</FormGroup>
+	<FormGroup floating label="Tertiary">
+		<Input
+			type="select"
+			class={tertiary === primary || tertiary === secondary ? 'is-invalid' : 'is-valid'}
+			style="width: unset"
+			bind:value={tertiary}
+			id="tertiary"
+		>
+			<option>Mental</option>
+			<option>Physical</option>
+			<option>Social</option>
+		</Input>
+	</FormGroup>
+</div>
 <Table bordered>
 	<thead>
 		<tr>
@@ -209,7 +233,7 @@
 					readonly
 					id="mental-total"
 					bind:value={mental}
-					class={mental.split(' ')[0] === mental.split(' ')[3] ? 'is-valid' : 'is-valid is-invalid'}
+					class={mental.split(' ')[0] === mental.split(' ')[3] ? 'is-valid' : 'is-invalid'}
 				/>
 			</td>
 			<td>
@@ -219,7 +243,7 @@
 					bind:value={physical}
 					class={physical.split(' ')[0] === physical.split(' ')[3]
 						? 'is-valid'
-						: 'is-valid is-invalid'}
+						: 'is-invalid'}
 				/>
 			</td>
 			<td>
@@ -227,45 +251,12 @@
 					readonly
 					id="social-total"
 					bind:value={social}
-					class={social.split(' ')[0] === social.split(' ')[3] ? 'is-valid' : 'is-valid is-invalid'}
+					class={social.split(' ')[0] === social.split(' ')[3] ? 'is-valid' : 'is-invalid'}
 				/>
 			</td>
 		</tr>
 	</tbody>
 </Table>
-<Alert id="cha-dupe-error" color="danger" hidden>
-	Each priority (primary, secondary, tertiary) must have a unique characteristic category (mental,
-	physical, social).
-</Alert>
-<div id="characteristic-priorities">
-	<FormGroup floating label="Primary">
-		<Input type="select" class="is-valid" style="width: unset" bind:value={primary} id="primary">
-			<option>Mental</option>
-			<option>Physical</option>
-			<option>Social</option>
-		</Input>
-	</FormGroup>
-	<FormGroup floating label="Secondary">
-		<Input
-			type="select"
-			class="is-valid"
-			style="width: unset"
-			bind:value={secondary}
-			id="secondary"
-		>
-			<option>Mental</option>
-			<option>Physical</option>
-			<option>Social</option>
-		</Input>
-	</FormGroup>
-	<FormGroup floating label="Tertiary">
-		<Input type="select" class="is-valid" style="width: unset" bind:value={tertiary} id="tertiary">
-			<option>Mental</option>
-			<option>Physical</option>
-			<option>Social</option>
-		</Input>
-	</FormGroup>
-</div>
 
 <style>
 	div#characteristic-priorities {
