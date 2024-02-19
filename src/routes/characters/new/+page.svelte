@@ -1,5 +1,5 @@
 <script>
-	import { Form, Button } from '@sveltestrap/sveltestrap';
+	import { Form, Button, Modal } from '@sveltestrap/sveltestrap';
 	import { shallowCopyObj as copy } from '$lib/shallowCopyObj.js';
 	import Characteristics from './Characteristics.svelte';
 	import Flavor from './Flavor.svelte';
@@ -22,13 +22,15 @@
 	};
 	let character = copy(characterBase);
 	let nextAction = '';
+	let open = false;
+	const toggle = () => (open = !open);
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		switch (nextAction) {
 			case '+':
 				if(document.querySelector(".is-invalid")) {
-					return alert("Please fix errors before proceeding");
+					return toggle();
 				}
 				if (page < maxPage) page++;
 				validated = false;
@@ -53,6 +55,9 @@
 	};
 </script>
 
+<Modal body header="Errors Present" isOpen={open} {toggle}>
+	Please fix errors before proceeding
+</Modal>
 <Form {validated} on:submit={handleSubmit}>
 	<h1>New Character</h1>
 	{#if page === 1}
