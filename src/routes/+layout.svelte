@@ -12,7 +12,16 @@
 <Navbar color="dark" theme="dark">
 	<NavbarBrand href="/">Home</NavbarBrand>
 	<Nav underline theme="dark">
-		{#if !$page.data.token}
+		{#if $page.data.token}
+			<NavItem>
+				<NavLink href="/characters/new">New Character</NavLink>
+			</NavItem>
+			<NavItem>
+				<form class="nav-link" method="POST" on:submit={logout}>
+					<button type="submit" style="all: unset; cursor: pointer;">Logout</button>
+				</form>
+			</NavItem>
+		{:else if $page.data.done}
 			<NavItem>
 				<NavLink href="/login">Login</NavLink>
 			</NavItem>
@@ -20,13 +29,8 @@
 				<NavLink href="/signup">Signup</NavLink>
 			</NavItem>
 		{:else}
-			<NavItem>
-                <NavLink href="/characters/new">New Character</NavLink>
-            </NavItem>
-			<NavItem>
-				<form class="nav-link" method="POST" on:submit={logout}>
-					<button type="submit" style="all: unset; cursor: pointer;">Logout</button>
-				</form>
+			<NavItem style="color: white">
+				Loading...
 			</NavItem>
 		{/if}
 	</Nav>
