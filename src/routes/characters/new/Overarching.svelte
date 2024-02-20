@@ -27,24 +27,24 @@
 	<Input type="text" bind:value={character.campaign} style="max-width: {width}" />
 </FormGroup>
 <FormGroup floating label="Race">
-	<Input type="text" bind:value={character.race} style="max-width: {width}" />
+	<Input type="text" bind:value={character.race} style="max-width: {width}" required />
 </FormGroup>
 <FormGroup floating label="Exaltation">
 	<Input type="text" bind:value={character.exaltation} style="max-width: {width}" />
 </FormGroup>
 <InputGroup style="max-width: {width}">
 	<FormGroup floating label="Resource Stat Name">
-		<Input type="text" bind:value={character.resource} />
+		<Input type="text" bind:value={character.resource} required />
 	</FormGroup>
 	<FormGroup floating label="Power Stat Name">
-		<Input type="text" bind:value={character.power} />
+		<Input type="text" bind:value={character.power} required />
 	</FormGroup>
 </InputGroup>
 <FormGroup floating label="Alignment">
 	<Input type="text" bind:value={character.alignment} style="max-width: {width}" />
 </FormGroup>
-<FormGroup floating label="Starting Class">
-	<Input type="text" bind:value={character.class} style="max-width: {width}" />
+<FormGroup floating label="Current Class">
+	<Input type="text" bind:value={character.currentClass} style="max-width: {width}" required />
 </FormGroup>
 <FormGroup>
 	<InputGroup>
