@@ -30,7 +30,7 @@
 	<Input type="text" bind:value={character.race} style="max-width: {width}" required />
 </FormGroup>
 <FormGroup floating label="Exaltation">
-	<Input type="text" bind:value={character.exaltation} style="max-width: {width}" />
+	<Input type="text" bind:value={character.exaltation} style="max-width: {width}" required />
 </FormGroup>
 <InputGroup style="max-width: {width}">
 	<FormGroup floating label="Resource Stat Name">
