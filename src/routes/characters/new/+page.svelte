@@ -46,8 +46,22 @@
 				if (page > 1) page--;
 				validated = false;
 				break;
+			case '>':
+				submitForm();
+				break;
 		}
 	};
+	const submitForm = async () => {
+		const res = await fetch(baseUrl + "api/characters/new", {
+			method:"POST",
+			body: JSON.stringify(character),
+			headers: {
+				Authorization: "Bearer " + window.localStorage.getItem("accessToken"),
+				"Content-Type": "application/json",
+			}
+		});
+		console.log(res);
+	}
 	const handleClick = (e) => {
 		nextAction = e.target.dataset.action;
 		if(page !== 2) {
@@ -80,4 +94,5 @@
 		Next Page
 	</Button>
 	<Button on:click={resetProgress}>Reset Progress</Button>
+	<Button on:click={handleClick} data-action=">" hidden={page === maxPage ? null : ''}>Submit</Button>
 </Form>
