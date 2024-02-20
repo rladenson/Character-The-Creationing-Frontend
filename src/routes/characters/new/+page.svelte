@@ -2,7 +2,8 @@
 	import { Form, Button, Modal } from '@sveltestrap/sveltestrap';
 	import { shallowCopyObj as copy } from '$lib/shallowCopyObj.js';
 	import Characteristics from './Characteristics.svelte';
-	import Flavor from './Flavor.svelte';
+	import Overarching from './Overarching.svelte';
+	import { baseUrl } from '$lib/stores.js';
 
 	let validated = false;
 	let page = 1;
@@ -23,7 +24,7 @@
 	const recordBase = {
 		primary: "Mental",
 		secondary: "Physical",
-		tertiary: "Social"
+		tertiary: "Social",
 	}
 	let character = copy(characterBase);
 	let record = copy(recordBase);
@@ -68,7 +69,7 @@
 <Form {validated} on:submit={handleSubmit}>
 	<h1>New Character</h1>
 	{#if page === 1}
-		<Flavor bind:character />
+		<Overarching bind:character bind:record />
 	{:else if page === 2}
 		<Characteristics bind:character bind:record />
 	{/if}
