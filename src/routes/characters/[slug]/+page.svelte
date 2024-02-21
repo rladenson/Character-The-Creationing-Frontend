@@ -57,12 +57,19 @@
 					<ul id="overview-list">
 						<li><strong>Race: </strong>{data.character.race}<br /></li>
 						<li><strong>Current Class: </strong>{data.character.currentClass}</li>
-						<li><strong>Exaltation: </strong>{data.character.exaltation}</li>
+						<li>
+							<strong>Exaltation: </strong>{data.character.exaltation}
+							<ul>
+								<li><strong>Power Stat: </strong>{data.character.power}</li>
+								<li><strong>Resource Stat: </strong>{data.character.resource}</li>
+							</ul>
+						</li>
 						<li><strong>Alignment: </strong>{data.character.alignment || 'None'}</li>
+						<li><strong>Completed Classes: </strong>{data.character.completedClasses || 'None'}</li>
 					</ul>
-                    {#if data.owner}
-					<Button on:click={toggleDeletePrompt} color="danger">Delete Character</Button>
-                    {/if}
+					{#if data.owner}
+						<Button on:click={toggleDeletePrompt} color="danger">Delete Character</Button>
+					{/if}
 				</TabPane>
 				<TabPane tabId="stats" tab="Stats">Stats will go here</TabPane>
 			</TabContent>
@@ -88,8 +95,11 @@
 	#overview-list {
 		list-style-type: '\27BB\00A0';
 	}
-    #back {
-        margin-top: .5em;
-        margin-bottom: .5em;
-    }
+	#overview-list ul {
+		list-style-type: '\27B3\00A0';
+	}
+	#back {
+		margin-top: 0.5em;
+		margin-bottom: 0.5em;
+	}
 </style>
