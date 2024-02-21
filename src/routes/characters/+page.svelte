@@ -1,13 +1,13 @@
 <script>
     import { Card, CardHeader, CardTitle, CardBody, CardText, Button } from "@sveltestrap/sveltestrap";
-	import { page } from '$app/stores';
+    export let data;
 </script>
 
 <h1>My Characters</h1>
 <Button href="/characters/new" color="primary">New Character</Button>
 <br /><br />
 <div id="memberBlock">
-{#each $page.data.members as member}
+{#each data.members as member}
 <Card style="min-width: 11em">
     <CardHeader>
         <CardTitle>
