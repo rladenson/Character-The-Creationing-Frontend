@@ -10,7 +10,10 @@ export async function load({ params, fetch }) {
         throw error(res.status);
     }
 
+    const json = await res.json();
+
     return {
-        character: await res.json()
+        character: json.character,
+        owner: json.userId == window.localStorage.getItem("id")
     }
 }
