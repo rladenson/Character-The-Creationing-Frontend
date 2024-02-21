@@ -40,7 +40,6 @@
 	</ModalFooter>
 </Modal>
 
-<div id="back"><Button href="/characters">Back</Button></div>
 {#if status === ''}
 	<Card>
 		<CardHeader>
@@ -61,7 +60,8 @@
 						<li><strong>Alignment: </strong>{data.character.alignment || 'None'}</li>
 					</ul>
                     {#if data.owner}
-					<Button on:click={toggleDeletePrompt} color="danger">Delete Character</Button>
+                    <Button href="/characters/{data.character.id}/edit" color="warning">Edit</Button>
+					<Button on:click={toggleDeletePrompt} color="danger">Delete</Button>
                     {/if}
 				</TabPane>
 				<TabPane tabId="stats" tab="Stats">Stats will go here</TabPane>
@@ -88,8 +88,4 @@
 	#overview-list {
 		list-style-type: '\27BB\00A0';
 	}
-    #back {
-        margin-top: .5em;
-        margin-bottom: .5em;
-    }
 </style>
