@@ -40,7 +40,7 @@
 	</ModalFooter>
 </Modal>
 
-<br />
+<div id="back"><Button href="/characters">Back</Button></div>
 {#if status === ''}
 	<Card>
 		<CardHeader>
@@ -88,4 +88,8 @@
 	#overview-list {
 		list-style-type: '\27BB\00A0';
 	}
+    #back {
+        margin-top: .5em;
+        margin-bottom: .5em;
+    }
 </style>

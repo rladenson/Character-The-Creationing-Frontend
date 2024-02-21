@@ -1,10 +1,12 @@
-import { browser } from "$app/environment";
+import { browser } from '$app/environment';
+
+export const ssr = false;
 
 export async function load() {
-    if(browser) {
-        return {
-            token: localStorage.getItem("accessToken"),
-            done: true
-        }
-    }
+	if (browser) {
+		return {
+			token: localStorage.getItem('accessToken'),
+			done: true
+		};
+	}
 }

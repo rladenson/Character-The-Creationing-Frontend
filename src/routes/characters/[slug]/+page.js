@@ -13,7 +13,7 @@ export async function load({ params, fetch }) {
     const json = await res.json();
 
     return {
-        character: json.character,
-        owner: json.userId == window.localStorage.getItem("id")
+        character: json.comprehensiveCharacter,
+        owner: json.comprehensiveCharacter.userId == window.localStorage.getItem("id")
     }
 }
