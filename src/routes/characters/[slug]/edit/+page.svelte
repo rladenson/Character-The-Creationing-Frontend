@@ -22,7 +22,9 @@
 
 	const reset = (e) => {
 		e.preventDefault();
-		const field = e.target.dataset.field;
+		let target = e.target;
+		if (target.nodeName === 'I') target = target.parentElement;
+		const field = target.dataset.field;
 		character[field] = characterBase[field];
 	};
 
@@ -46,16 +48,62 @@
 		character = copy(characterBase);
 	});
 
-	let isOpen = false;
+	let summaryOpen = false;
 	let validated = false;
 	let changed = false;
+	let patch = [];
 	$: changed = JSON.stringify(character) === JSON.stringify(characterBase);
-	const toggle = () => (isOpen = !isOpen);
+	let errorOpen = false;
+	let errors = [];
+	const errorToggle = () => (errorOpen = !errorOpen);
+	const summaryToggle = () => {
+		if (summaryOpen) return (summaryOpen = false);
+		errors = [];
+		patch = [];
+		overviewFields.forEach(([field, name, required]) => {
+			let newVal = character[field];
+			if (typeof newVal === 'string') newVal = newVal.trim();
+			const oldVal = characterBase[field];
 
-	const submit = async (e) => {};
+			if (newVal === '') {
+				if (required) errors.push(name);
+				if (oldVal === null) return;
+				return (patch.push({op: "remove", path: `/${field}`}));
+			}
+			if (oldVal == newVal) return;
+			patch.push({op: "replace", path: `/${field}`, value: newVal})
+		});
+		if (errors.length > 0) return (errorOpen = true);
+		if (patch.length === 0) return;
+		summaryOpen = true;
+	};
+
+	const submit = async (e) => {
+		console.log(JSON.stringify(patch))
+		const res = await fetch(`${baseUrl}api/characters/${characterBase.id}`, {
+			method: 'PATCH',
+			body: JSON.stringify(patch),
+			headers: {
+				Authorization: 'Bearer ' + window.localStorage.getItem('accessToken'),
+				'Content-Type': 'application/json-patch+json'
+			}
+		});
+		console.log(res);
+	};
 </script>
 
-<Modal {isOpen} {toggle} header="Confirm Submission?" body scrollable>
+<Modal
+	isOpen={errorOpen}
+	toggle={errorToggle}
+	header="The following items have errors"
+	body
+	scrollable
+>
+	{#each errors as error}
+		{error},&nbsp;
+	{/each}
+</Modal>
+<Modal isOpen={summaryOpen} toggle={summaryToggle} header="Confirm Submission?" body scrollable>
 	<ul id="summary-list">
 		{#each overviewFields as [field, name]}
 			{#if character[field] != characterBase[field]}
@@ -73,12 +121,12 @@
 		{/each}
 	</ul>
 	<ModalFooter>
-		<Button on:click={toggle}>Cancel</Button>
+		<Button on:click={summaryToggle}>Cancel</Button>
 		<Button on:click={submit} color="success">Submit Changes</Button>
 	</ModalFooter>
 </Modal>
 
-<Form {validated} on:submit={toggle}>
+<Form {validated} on:submit={summaryToggle}>
 	<Card>
 		<CardHeader>
 			<CardTitle>
