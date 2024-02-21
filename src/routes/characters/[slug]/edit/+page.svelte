@@ -74,7 +74,7 @@
 	</ul>
 	<ModalFooter>
 		<Button on:click={toggle}>Cancel</Button>
-		<Button on:click={submit}>Submit Changes</Button>
+		<Button on:click={submit} color="success">Submit Changes</Button>
 	</ModalFooter>
 </Modal>
 
