@@ -2,7 +2,7 @@
 	import { Card, CardHeader, CardTitle, CardBody, CardText } from '@sveltestrap/sveltestrap';
 	import { TabContent, TabPane } from '@sveltestrap/sveltestrap';
 	import { Button, InputGroup, InputGroupText, Input, Form } from '@sveltestrap/sveltestrap';
-	import { Styles, Icon } from '@sveltestrap/sveltestrap';
+	import { Styles, Icon, Modal, ModalFooter } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
 	import { baseUrl } from '$lib/stores.js';
 	import { page } from '$app/stores';
@@ -46,13 +46,39 @@
 		character = copy(characterBase);
 	});
 
-	const submit = (e) => {
-		e.preventDefault();
-		console.log('test');
-	};
+	let isOpen = false;
+	let validated = false;
+	let changed = false;
+	$: changed = JSON.stringify(character) === JSON.stringify(characterBase);
+	const toggle = () => (isOpen = !isOpen);
+
+	const submit = async (e) => {};
 </script>
 
-<Form on:submit={submit}>
+<Modal {isOpen} {toggle} header="Confirm Submission?" body scrollable>
+	<ul id="summary-list">
+		{#each overviewFields as [field, name]}
+			{#if character[field] != characterBase[field]}
+				<li>
+					<strong>{name}: </strong>
+					{characterBase[field]}
+					<Icon name="arrow-right" />
+					{#if character[field] && character[field] !== ''}
+						{character[field]}
+					{:else}
+						<i>&lt;blank&gt;</i>
+					{/if}
+				</li>
+			{/if}
+		{/each}
+	</ul>
+	<ModalFooter>
+		<Button on:click={toggle}>Cancel</Button>
+		<Button on:click={submit}>Submit Changes</Button>
+	</ModalFooter>
+</Modal>
+
+<Form {validated} on:submit={toggle}>
 	<Card>
 		<CardHeader>
 			<CardTitle>
@@ -86,7 +112,7 @@
 						{/each}
 					</ul>
 					<Button href="/characters/{characterBase.id}">Cancel</Button>
-					<Button color="success">Submit</Button>
+					<Button type="submit" color="success" disabled={changed}>Submit</Button>
 				</TabPane>
 				<TabPane tabId="stats" tab="Stats">Stats will go here</TabPane>
 			</TabContent>
@@ -102,6 +128,9 @@
 	#overview-list {
 		list-style: none;
 		padding-left: unset;
+	}
+	#summary-list {
+		list-style-type: '\27BB\00A0';
 	}
 	.margin {
 		margin-top: 0.5em;
