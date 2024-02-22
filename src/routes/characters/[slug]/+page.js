@@ -11,9 +11,11 @@ export async function load({ params, fetch }) {
     }
 
     const json = await res.json();
+    console.log(json);
 
     return {
-        character: json.comprehensiveCharacter,
-        owner: json.comprehensiveCharacter.userId == window.localStorage.getItem("id")
+        character: json.character,
+        stats: json.stats,
+        owner: json.userId == window.localStorage.getItem("id")
     }
 }

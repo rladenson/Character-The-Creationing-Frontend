@@ -53,7 +53,7 @@
 		<CardBody>
 			<TabContent on:tab={(e) => (tab = e.detail)}>
 				<TabPane tabId="overview" tab="Overview" active>
-					<ul id="overview-list">
+					<ul class="list">
 						<li><strong>Race: </strong>{data.character.race}<br /></li>
 						<li><strong>Current Class: </strong>{data.character.currentClass}</li>
 						<li>
@@ -66,12 +66,29 @@
 						<li><strong>Alignment: </strong>{data.character.alignment || 'None'}</li>
 						<li><strong>Completed Classes: </strong>{data.character.completedClasses || 'None'}</li>
 					</ul>
-                    {#if data.owner}
-                    <Button href="/characters/{data.character.id}/edit" color="warning">Edit</Button>
-					<Button on:click={toggleDeletePrompt} color="danger">Delete</Button>
-                    {/if}
+					{#if data.owner}
+						<Button href="/characters/{data.character.id}/edit" color="warning">Edit</Button>
+						<Button on:click={toggleDeletePrompt} color="danger">Delete</Button>
+					{/if}
 				</TabPane>
-				<TabPane tabId="stats" tab="Stats">Stats will go here</TabPane>
+				<TabPane tabId="stats" tab="Stats">
+					<ul class="list">
+						<li>
+							Characteristics
+							<ul>
+								<li><strong>Intelligence: </strong>{data.stats.intelligence}</li>
+								<li><strong>Wisdom: </strong>{data.stats.wisdom}</li>
+								<li><strong>Willpower: </strong>{data.stats.willpower}</li>
+								<li><strong>Strength: </strong>{data.stats.strength}</li>
+								<li><strong>Dexterity: </strong>{data.stats.dexterity}</li>
+								<li><strong>Constitution: </strong>{data.stats.constitution}</li>
+								<li><strong>Charisma: </strong>{data.stats.charisma}</li>
+								<li><strong>Fellowship: </strong>{data.stats.fellowship}</li>
+								<li><strong>Composure: </strong>{data.stats.composure}</li>
+							</ul>
+						</li>
+					</ul>
+				</TabPane>
 			</TabContent>
 		</CardBody>
 	</Card>
@@ -92,10 +109,10 @@
 {/if}
 
 <style>
-	#overview-list {
+	.list {
 		list-style-type: '\27BB\00A0';
 	}
-	#overview-list ul {
+	.list ul {
 		list-style-type: '\27B3\00A0';
 	}
 </style>
