@@ -68,10 +68,10 @@
 			if (newVal === '') {
 				if (required) errors.push(name);
 				if (oldVal === null) return;
-				return (patch.push({op: "remove", path: `/${field}`}));
+				return patch.push({ op: 'remove', path: `/${field}` });
 			}
 			if (oldVal == newVal) return;
-			patch.push({op: "replace", path: `/${field}`, value: newVal})
+			patch.push({ op: 'replace', path: `/${field}`, value: newVal });
 		});
 		if (errors.length > 0) return (errorOpen = true);
 		if (patch.length === 0) return;
@@ -79,7 +79,7 @@
 	};
 
 	const submit = async (e) => {
-		console.log(JSON.stringify(patch))
+		console.log(JSON.stringify(patch));
 		const res = await fetch(`${baseUrl}api/characters/${characterBase.id}`, {
 			method: 'PATCH',
 			body: JSON.stringify(patch),
@@ -88,7 +88,12 @@
 				'Content-Type': 'application/json-patch+json'
 			}
 		});
-		console.log(res);
+
+		if (res.status === 200) {
+			window.location.replace(`/characters/${characterBase.id}`);
+		} else {
+			console.log(res);
+		}
 	};
 </script>
 
