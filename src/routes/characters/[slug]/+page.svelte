@@ -40,7 +40,6 @@
 	</ModalFooter>
 </Modal>
 
-<div id="back"><Button href="/characters">Back</Button></div>
 {#if status === ''}
 	<Card>
 		<CardHeader>
@@ -67,9 +66,10 @@
 						<li><strong>Alignment: </strong>{data.character.alignment || 'None'}</li>
 						<li><strong>Completed Classes: </strong>{data.character.completedClasses || 'None'}</li>
 					</ul>
-					{#if data.owner}
-						<Button on:click={toggleDeletePrompt} color="danger">Delete Character</Button>
-					{/if}
+                    {#if data.owner}
+                    <Button href="/characters/{data.character.id}/edit" color="warning">Edit</Button>
+					<Button on:click={toggleDeletePrompt} color="danger">Delete</Button>
+                    {/if}
 				</TabPane>
 				<TabPane tabId="stats" tab="Stats">Stats will go here</TabPane>
 			</TabContent>
@@ -97,9 +97,5 @@
 	}
 	#overview-list ul {
 		list-style-type: '\27B3\00A0';
-	}
-	#back {
-		margin-top: 0.5em;
-		margin-bottom: 0.5em;
 	}
 </style>
