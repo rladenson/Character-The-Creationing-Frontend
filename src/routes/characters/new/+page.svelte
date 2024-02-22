@@ -19,7 +19,8 @@
 			charisma: 1,
 			fellowship: 1,
 			composure: 1
-		}
+		},
+		level: 1,
 	};
 	const recordBase = {
 		primary: "Mental",

@@ -54,7 +54,7 @@
 				on:change={(e) => {
 					if (!e.target.checked) {
 						character.completedClasses = undefined;
-						character.level = undefined;
+						character.level = 1;
 					}
 				}}
 			/>
