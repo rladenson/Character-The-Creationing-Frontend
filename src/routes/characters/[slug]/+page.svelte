@@ -72,22 +72,50 @@
 					{/if}
 				</TabPane>
 				<TabPane tabId="stats" tab="Stats">
-					<ul class="list">
-						<li>
-							Characteristics
-							<ul>
-								<li><strong>Intelligence: </strong>{data.stats.intelligence}</li>
-								<li><strong>Wisdom: </strong>{data.stats.wisdom}</li>
-								<li><strong>Willpower: </strong>{data.stats.willpower}</li>
-								<li><strong>Strength: </strong>{data.stats.strength}</li>
-								<li><strong>Dexterity: </strong>{data.stats.dexterity}</li>
-								<li><strong>Constitution: </strong>{data.stats.constitution}</li>
-								<li><strong>Charisma: </strong>{data.stats.charisma}</li>
-								<li><strong>Fellowship: </strong>{data.stats.fellowship}</li>
-								<li><strong>Composure: </strong>{data.stats.composure}</li>
-							</ul>
-						</li>
-					</ul>
+					<h4>Characteristics</h4>
+					<div id="grid">
+						<div style="grid-area: 1/1/1/1">
+							<h5>INT</h5>
+							{data.stats.intelligence}
+						</div>
+						<div style="grid-area: 2/1/2/1">
+							<h5>WIS</h5>
+							{data.stats.wisdom}
+						</div>
+						<div style="grid-area: 3/1/3/1">
+							<h5>WIL</h5>
+							{data.stats.willpower}
+						</div>
+						<div style="grid-area: 1/2/1/2">
+							<h5>STR</h5>
+							{data.stats.strength}
+						</div>
+						<div style="grid-area: 2/2/2/2">
+							<h5>DEX</h5>
+							{data.stats.dexterity}
+						</div>
+						<div style="grid-area: 3/2/3/2">
+							<h5>CON</h5>
+							{data.stats.constitution}
+						</div>
+						<div style="grid-area: 1/3/1/3">
+							<h5>CHA</h5>
+							{data.stats.charisma}
+						</div>
+						<div style="grid-area: 2/3/2/3">
+							<h5>FEL</h5>
+							{data.stats.fellowship}
+						</div>
+						<div style="grid-area: 3/3/3/3">
+							<h5>COM</h5>
+							{data.stats.composure}
+						</div>
+					</div>
+					<br />
+					{#if data.owner}
+						<Button href="/characters/{data.character.id}/edit" color="warning">Edit</Button>
+						<Button on:click={toggleDeletePrompt} color="danger">Delete</Button>
+					{/if}
 				</TabPane>
 			</TabContent>
 		</CardBody>
@@ -114,5 +142,15 @@
 	}
 	.list ul {
 		list-style-type: '\27B3\00A0';
+	}
+	#grid {
+		display: grid;
+		grid-template-columns: repeat(3, fr);
+		gap: 2px;
+	}
+	#grid > * {
+		text-align: center;
+		border: 1px solid rgba(200, 200, 200, 1);
+		border-radius: 10px;
 	}
 </style>

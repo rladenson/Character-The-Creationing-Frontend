@@ -8,8 +8,8 @@
 	import { page } from '$app/stores';
 	import { shallowCopyObj as copy } from '$lib/shallowCopyObj.js';
 	let tab = 'overview';
-	let character = {};
-	let characterBase = {};
+	let character = { stats: {} };
+	let characterBase = { stats: {} };
 	let overviewFields = [
 		['race', 'Race', true],
 		['currentClass', 'Class', true],
@@ -28,6 +28,14 @@
 		character[field] = characterBase[field];
 	};
 
+	const resetStat = (e) => {
+		e.preventDefault();
+		let target = e.target;
+		if (target.nodeName === 'I') target = target.parentElement;
+		const field = target.dataset.field;
+		character.stats[field] = characterBase.stats[field];
+	};
+
 	onMount(async () => {
 		const res = await fetch(baseUrl + `api/characters/${$page.params.slug}`, {
 			headers: {
@@ -35,16 +43,17 @@
 			}
 		});
 		if (res.status !== 200) {
-			throw error(res.status);
+			throw res.status;
 		}
 
 		const json = await res.json();
-		const char = json.comprehensiveCharacter;
+		const char = json.character;
 
-		if (char.userId != window.localStorage.getItem('id'))
+		if (json.userId != window.localStorage.getItem('id'))
 			window.location.replace(`/characters/${char.id}`);
 
 		characterBase = char;
+		characterBase.stats = json.stats;
 		character = copy(characterBase);
 	});
 
@@ -167,7 +176,163 @@
 					<Button href="/characters/{characterBase.id}">Cancel</Button>
 					<Button type="submit" color="success" disabled={changed}>Submit</Button>
 				</TabPane>
-				<TabPane tabId="stats" tab="Stats">Stats will go here</TabPane>
+				<TabPane tabId="stats" tab="Stats">
+					<h4>Characteristics</h4>
+					<div id="grid">
+						<div style="grid-area: 1/1/1/1">
+							<h5>INT</h5>
+							<InputGroup>
+								<Input
+									style="text-align:center"
+									placeholder={characterBase.stats.intelligence}
+									bind:value={character.stats.intelligence}
+								/>
+								<Button
+									on:click={resetStat}
+									data-field="intelligence"
+									style="border-top-right-radius:0"
+								>
+									<Icon name="arrow-counterclockwise" />
+								</Button>
+							</InputGroup>
+						</div>
+						<div style="grid-area: 2/1/2/1">
+							<h5>WIS</h5>
+							<InputGroup>
+								<Input
+									style="text-align:center"
+									placeholder={characterBase.stats.wisdom}
+									bind:value={character.stats.wisdom}
+								/>
+								<Button on:click={resetStat} data-field="wisdom" style="border-top-right-radius:0">
+									<Icon name="arrow-counterclockwise" />
+								</Button>
+							</InputGroup>
+						</div>
+						<div style="grid-area: 3/1/3/1">
+							<h5>WIL</h5>
+							<InputGroup>
+								<Input
+									style="text-align:center"
+									placeholder={characterBase.stats.willpower}
+									bind:value={character.stats.willpower}
+								/>
+								<Button
+									on:click={resetStat}
+									data-field="willpower"
+									style="border-top-right-radius:0"
+								>
+									<Icon name="arrow-counterclockwise" />
+								</Button>
+							</InputGroup>
+						</div>
+						<div style="grid-area: 1/2/1/2">
+							<h5>STR</h5>
+							<InputGroup>
+								<Input
+									style="text-align:center"
+									placeholder={characterBase.stats.strength}
+									bind:value={character.stats.strength}
+								/>
+								<Button
+									on:click={resetStat}
+									data-field="strength"
+									style="border-top-right-radius:0"
+								>
+									<Icon name="arrow-counterclockwise" />
+								</Button>
+							</InputGroup>
+						</div>
+						<div style="grid-area: 2/2/2/2">
+							<h5>DEX</h5>
+							<InputGroup>
+								<Input
+									style="text-align:center"
+									placeholder={characterBase.stats.dexterity}
+									bind:value={character.stats.dexterity}
+								/>
+								<Button
+									on:click={resetStat}
+									data-field="dexterity"
+									style="border-top-right-radius:0"
+								>
+									<Icon name="arrow-counterclockwise" />
+								</Button>
+							</InputGroup>
+						</div>
+						<div style="grid-area: 3/2/3/2">
+							<h5>CON</h5>
+							<InputGroup>
+								<Input
+									style="text-align:center"
+									placeholder={characterBase.stats.constitution}
+									bind:value={character.stats.constitution}
+								/>
+								<Button
+									on:click={resetStat}
+									data-field="constitution"
+									style="border-top-right-radius:0"
+								>
+									<Icon name="arrow-counterclockwise" />
+								</Button>
+							</InputGroup>
+						</div>
+						<div style="grid-area: 1/3/1/3">
+							<h5>CHA</h5>
+							<InputGroup>
+								<Input
+									style="text-align:center"
+									placeholder={characterBase.stats.charisma}
+									bind:value={character.stats.charisma}
+								/>
+								<Button
+									on:click={resetStat}
+									data-field="charisma"
+									style="border-top-right-radius:0"
+								>
+									<Icon name="arrow-counterclockwise" />
+								</Button>
+							</InputGroup>
+						</div>
+						<div style="grid-area: 2/3/2/3">
+							<h5>FEL</h5>
+							<InputGroup>
+								<Input
+									style="text-align:center"
+									placeholder={characterBase.stats.fellowship}
+									bind:value={character.stats.fellowship}
+								/>
+								<Button
+									on:click={resetStat}
+									data-field="fellowship"
+									style="border-top-right-radius:0"
+								>
+									<Icon name="arrow-counterclockwise" />
+								</Button>
+							</InputGroup>
+						</div>
+						<div style="grid-area: 3/3/3/3">
+							<h5>COM</h5>
+							<InputGroup>
+								<Input
+									style="text-align:center"
+									placeholder={characterBase.stats.composure}
+									bind:value={character.stats.composure}
+								/>
+								<Button
+									on:click={resetStat}
+									data-field="composure"
+									style="border-top-right-radius:0"
+								>
+									<Icon name="arrow-counterclockwise" />
+								</Button>
+							</InputGroup>
+						</div>
+					</div>
+					<br />
+					<Button href="/characters/{characterBase.id}">Cancel</Button>
+					<Button type="submit" color="success" disabled={changed}>Submit</Button>
+				</TabPane>
 			</TabContent>
 		</CardBody>
 	</Card>
@@ -187,5 +352,15 @@
 	}
 	.margin {
 		margin-top: 0.5em;
+	}
+	#grid {
+		display: grid;
+		grid-template-columns: repeat(3, fr);
+		gap: 2px;
+	}
+	#grid > * {
+		text-align: center;
+		border: 1px solid rgba(200, 200, 200, 1);
+		border-radius: 10px;
 	}
 </style>
