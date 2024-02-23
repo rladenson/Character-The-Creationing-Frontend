@@ -20,13 +20,13 @@
 			fellowship: 1,
 			composure: 1
 		},
-		level: 1,
+		level: 1
 	};
 	const recordBase = {
-		primary: "Mental",
-		secondary: "Physical",
-		tertiary: "Social",
-	}
+		primary: 'Mental',
+		secondary: 'Physical',
+		tertiary: 'Social'
+	};
 	let character = copy(characterBase);
 	let record = copy(recordBase);
 	let nextAction = '';
@@ -37,7 +37,7 @@
 		e.preventDefault();
 		switch (nextAction) {
 			case '+':
-				if(document.querySelector(".is-invalid")) {
+				if (document.querySelector('.is-invalid')) {
 					return toggle();
 				}
 				if (page < maxPage) page++;
@@ -53,19 +53,20 @@
 		}
 	};
 	const submitForm = async () => {
-		const res = await fetch(baseUrl + "api/characters/new", {
-			method:"POST",
+		const res = await fetch(baseUrl + 'api/characters/new', {
+			method: 'POST',
 			body: JSON.stringify(character),
 			headers: {
-				Authorization: "Bearer " + window.localStorage.getItem("accessToken"),
-				"Content-Type": "application/json",
+				Authorization: 'Bearer ' + window.localStorage.getItem('accessToken'),
+				'Content-Type': 'application/json'
 			}
 		});
-		console.log(res);
-	}
+		if (res.status === 201) window.location.replace(`/characters/${(await res.json()).character.id}`);
+		else console.log(res);
+	};
 	const handleClick = (e) => {
 		nextAction = e.target.dataset.action;
-		if(page !== 2) {
+		if (page !== 2) {
 			validated = true;
 		}
 	};
@@ -95,5 +96,7 @@
 		Next Page
 	</Button>
 	<Button on:click={resetProgress}>Reset Progress</Button>
-	<Button on:click={handleClick} data-action=">" hidden={page === maxPage ? null : ''}>Submit</Button>
+	<Button on:click={handleClick} data-action=">" hidden={page === maxPage ? null : ''}
+		>Submit</Button
+	>
 </Form>
