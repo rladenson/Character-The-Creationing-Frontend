@@ -7,6 +7,7 @@
 	import { baseUrl } from '$lib/stores.js';
 	import { page } from '$app/stores';
 	import { shallowCopyObj as copy } from '$lib/shallowCopyObj.js';
+	import { createPatch } from 'rfc6902';
 	let tab = 'overview';
 	let character = { stats: {} };
 	let characterBase = { stats: {} };
@@ -65,9 +66,13 @@
 			window.location.replace(`/characters/${char.id}`);
 
 		characterBase = char;
-		characterBase.completedClasses = characterBase.completedClasses.reduce((prev, cur) => {
-			if (prev) prev += ', ' + cur;
-		});
+		characterBase.completedClasses =
+			characterBase.completedClasses.length > 0
+				? characterBase.completedClasses.reduce((prev, cur) => {
+						if (prev) prev += ', ' + cur;
+					})
+				: '';
+
 		character = copy(characterBase);
 	});
 
@@ -86,7 +91,7 @@
 		patch = [];
 		statsPatch = [];
 		overviewFields.forEach(([field, name, required]) => {
-			if (['characterClasses'].indexOf(field) !== -1) return;
+			if (['completedClasses'].indexOf(field) !== -1) return;
 			let newVal = character[field];
 			if (typeof newVal === 'string') newVal = newVal.trim();
 			const oldVal = characterBase[field];
@@ -99,7 +104,7 @@
 			if (oldVal == newVal) return;
 			patch.push({ op: 'replace', path: `/${field}`, value: newVal });
 		});
-		//TODO characterClasses
+		getClassesPatch();
 		characteristics.forEach(([stat, _]) => {
 			let newVal = Number(character.stats[stat]);
 			newVal = Number(newVal);
@@ -113,6 +118,24 @@
 		if (errors.length > 0) return (errorOpen = true);
 		if (patch.length === 0 && statsPatch.length === 0) return;
 		summaryOpen = true;
+	};
+
+	const getClassesPatch = () => {
+		const oldClasses =
+			characterBase.completedClasses !== '' ? characterBase.completedClasses.split(/, ?/) : '';
+		const midClasses = character.completedClasses.split(/, ?/);
+		if (JSON.stringify(oldClasses) === JSON.stringify(midClasses)) return;
+		const newClasses = [];
+		midClasses.forEach((val) => {
+			val = val.trim();
+			if (val === '') return;
+			newClasses.push(val);
+		});
+		const classesPatch = createPatch(
+			{ completedClasses: oldClasses },
+			{ completedClasses: newClasses }
+		);
+		if (classesPatch.length > 0) patch.push(...classesPatch);
 	};
 
 	const submit = async (e) => {
@@ -131,7 +154,7 @@
 			reses.push(res);
 			statuses.push(res.status);
 		}
-		if(statsPatch.length > 0) {
+		if (statsPatch.length > 0) {
 			const res = await fetch(`${baseUrl}api/characters/${characterBase.id}/stats`, {
 				method: 'PATCH',
 				body: JSON.stringify(statsPatch),
@@ -144,7 +167,7 @@
 			statuses.push(res.status);
 		}
 
-		if (statuses.every(val => val === 200)) {
+		if (statuses.every((val) => val === 200)) {
 			window.location.replace(`/characters/${characterBase.id}`);
 		} else {
 			console.log(reses);

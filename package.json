@@ -24,6 +24,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@sveltestrap/sveltestrap": "^6.2.5"
+		"@sveltestrap/sveltestrap": "^6.2.5",
+		"rfc6902": "^5.1.1"
 	}
 }
