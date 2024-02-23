@@ -11,12 +11,24 @@
 	let character = { stats: {} };
 	let characterBase = { stats: {} };
 	let overviewFields = [
+		['name', 'Name', true],
+		['age', 'Age', false],
 		['race', 'Race', true],
-		['currentClass', 'Class', true],
 		['exaltation', 'Exaltation', true],
 		['alignment', 'Alignment', false],
-		['age', 'Age', false],
-		['name', 'Name', true]
+		['currentClass', 'Class', true],
+		['completedClasses', 'Completed Classes*', false]
+	];
+	let characteristics = [
+		['intelligence', 'INT'],
+		['wisdom', 'WIS'],
+		['willpower', 'WIL'],
+		['strength', 'STR'],
+		['dexterity', 'DEX'],
+		['constitution', 'CON'],
+		['charisma', 'CHA'],
+		['fellowship', 'FEL'],
+		['composure', 'COM']
 	];
 	const globalStyle = '<style>input::placeholder{font-style:italic}</style>';
 
@@ -53,7 +65,9 @@
 			window.location.replace(`/characters/${char.id}`);
 
 		characterBase = char;
-		characterBase.stats = json.stats;
+		characterBase.completedClasses = characterBase.completedClasses.reduce((prev, cur) => {
+			if (prev) prev += ', ' + cur;
+		});
 		character = copy(characterBase);
 	});
 
@@ -61,6 +75,7 @@
 	let validated = false;
 	let changed = false;
 	let patch = [];
+	let statsPatch = [];
 	$: changed = JSON.stringify(character) === JSON.stringify(characterBase);
 	let errorOpen = false;
 	let errors = [];
@@ -69,39 +84,70 @@
 		if (summaryOpen) return (summaryOpen = false);
 		errors = [];
 		patch = [];
+		statsPatch = [];
 		overviewFields.forEach(([field, name, required]) => {
+			if (['characterClasses'].indexOf(field) !== -1) return;
 			let newVal = character[field];
 			if (typeof newVal === 'string') newVal = newVal.trim();
 			const oldVal = characterBase[field];
 
 			if (newVal === '') {
-				if (required) errors.push(name);
+				if (required) return errors.push(name);
 				if (oldVal === null) return;
 				return patch.push({ op: 'remove', path: `/${field}` });
 			}
 			if (oldVal == newVal) return;
 			patch.push({ op: 'replace', path: `/${field}`, value: newVal });
 		});
+		//TODO characterClasses
+		characteristics.forEach(([stat, _]) => {
+			let newVal = Number(character.stats[stat]);
+			newVal = Number(newVal);
+			if (isNaN(newVal) || newVal < 1) return errors.push(stat);
+
+			const oldVal = Number(characterBase.stats[stat]);
+
+			if (oldVal == newVal) return;
+			statsPatch.push({ op: 'replace', path: `/${stat}`, value: newVal });
+		});
 		if (errors.length > 0) return (errorOpen = true);
-		if (patch.length === 0) return;
+		if (patch.length === 0 && statsPatch.length === 0) return;
 		summaryOpen = true;
 	};
 
 	const submit = async (e) => {
-		console.log(JSON.stringify(patch));
-		const res = await fetch(`${baseUrl}api/characters/${characterBase.id}`, {
-			method: 'PATCH',
-			body: JSON.stringify(patch),
-			headers: {
-				Authorization: 'Bearer ' + window.localStorage.getItem('accessToken'),
-				'Content-Type': 'application/json-patch+json'
-			}
-		});
+		if (patch.length === 0 && statsPatch.length === 0) return;
+		const statuses = [];
+		const reses = [];
+		if (patch.length > 0) {
+			const res = await fetch(`${baseUrl}api/characters/${characterBase.id}`, {
+				method: 'PATCH',
+				body: JSON.stringify(patch),
+				headers: {
+					Authorization: 'Bearer ' + window.localStorage.getItem('accessToken'),
+					'Content-Type': 'application/json-patch+json'
+				}
+			});
+			reses.push(res);
+			statuses.push(res.status);
+		}
+		if(statsPatch.length > 0) {
+			const res = await fetch(`${baseUrl}api/characters/${characterBase.id}/stats`, {
+				method: 'PATCH',
+				body: JSON.stringify(statsPatch),
+				headers: {
+					Authorization: 'Bearer ' + window.localStorage.getItem('accessToken'),
+					'Content-Type': 'application/json-patch+json'
+				}
+			});
+			reses.push(res);
+			statuses.push(res.status);
+		}
 
-		if (res.status === 200) {
+		if (statuses.every(val => val === 200)) {
 			window.location.replace(`/characters/${characterBase.id}`);
 		} else {
-			console.log(res);
+			console.log(reses);
 		}
 	};
 </script>
@@ -133,6 +179,20 @@
 				</li>
 			{/if}
 		{/each}
+		{#each characteristics as [stat, name]}
+			{#if character.stats[stat] != characterBase.stats[stat]}
+				<li>
+					<strong>{name}: </strong>
+					{characterBase.stats[stat]}
+					<Icon name="arrow-right" />
+					{#if character.stats[stat] && character.stats[stat] !== ''}
+						{character.stats[stat]}
+					{:else}
+						<i>&lt;blank&gt;</i>
+					{/if}
+				</li>
+			{/if}
+		{/each}
 	</ul>
 	<ModalFooter>
 		<Button on:click={summaryToggle}>Cancel</Button>
@@ -154,7 +214,7 @@
 			<TabContent on:tab={(e) => (tab = e.detail)}>
 				<TabPane tabId="overview" tab="Overview" active>
 					<ul id="overview-list">
-						{#each overviewFields.sort((a, b) => a[0] > b[0]) as [field, name, required]}
+						{#each overviewFields as [field, name, required]}
 							<li class="margin">
 								<InputGroup>
 									<InputGroupText>
@@ -174,160 +234,32 @@
 						{/each}
 					</ul>
 					<Button href="/characters/{characterBase.id}">Cancel</Button>
-					<Button type="submit" color="success" disabled={changed}>Submit</Button>
+					<Button type="submit" color="success" disabled={changed}>Submit</Button><br />
+					<small>*Separate with commas</small>
 				</TabPane>
 				<TabPane tabId="stats" tab="Stats">
 					<h4>Characteristics</h4>
-					<div id="grid">
-						<div style="grid-area: 1/1/1/1">
-							<h5>INT</h5>
-							<InputGroup>
-								<Input
-									style="text-align:center"
-									placeholder={characterBase.stats.intelligence}
-									bind:value={character.stats.intelligence}
-								/>
-								<Button
-									on:click={resetStat}
-									data-field="intelligence"
-									style="border-top-right-radius:0"
-								>
-									<Icon name="arrow-counterclockwise" />
-								</Button>
-							</InputGroup>
-						</div>
-						<div style="grid-area: 2/1/2/1">
-							<h5>WIS</h5>
-							<InputGroup>
-								<Input
-									style="text-align:center"
-									placeholder={characterBase.stats.wisdom}
-									bind:value={character.stats.wisdom}
-								/>
-								<Button on:click={resetStat} data-field="wisdom" style="border-top-right-radius:0">
-									<Icon name="arrow-counterclockwise" />
-								</Button>
-							</InputGroup>
-						</div>
-						<div style="grid-area: 3/1/3/1">
-							<h5>WIL</h5>
-							<InputGroup>
-								<Input
-									style="text-align:center"
-									placeholder={characterBase.stats.willpower}
-									bind:value={character.stats.willpower}
-								/>
-								<Button
-									on:click={resetStat}
-									data-field="willpower"
-									style="border-top-right-radius:0"
-								>
-									<Icon name="arrow-counterclockwise" />
-								</Button>
-							</InputGroup>
-						</div>
-						<div style="grid-area: 1/2/1/2">
-							<h5>STR</h5>
-							<InputGroup>
-								<Input
-									style="text-align:center"
-									placeholder={characterBase.stats.strength}
-									bind:value={character.stats.strength}
-								/>
-								<Button
-									on:click={resetStat}
-									data-field="strength"
-									style="border-top-right-radius:0"
-								>
-									<Icon name="arrow-counterclockwise" />
-								</Button>
-							</InputGroup>
-						</div>
-						<div style="grid-area: 2/2/2/2">
-							<h5>DEX</h5>
-							<InputGroup>
-								<Input
-									style="text-align:center"
-									placeholder={characterBase.stats.dexterity}
-									bind:value={character.stats.dexterity}
-								/>
-								<Button
-									on:click={resetStat}
-									data-field="dexterity"
-									style="border-top-right-radius:0"
-								>
-									<Icon name="arrow-counterclockwise" />
-								</Button>
-							</InputGroup>
-						</div>
-						<div style="grid-area: 3/2/3/2">
-							<h5>CON</h5>
-							<InputGroup>
-								<Input
-									style="text-align:center"
-									placeholder={characterBase.stats.constitution}
-									bind:value={character.stats.constitution}
-								/>
-								<Button
-									on:click={resetStat}
-									data-field="constitution"
-									style="border-top-right-radius:0"
-								>
-									<Icon name="arrow-counterclockwise" />
-								</Button>
-							</InputGroup>
-						</div>
-						<div style="grid-area: 1/3/1/3">
-							<h5>CHA</h5>
-							<InputGroup>
-								<Input
-									style="text-align:center"
-									placeholder={characterBase.stats.charisma}
-									bind:value={character.stats.charisma}
-								/>
-								<Button
-									on:click={resetStat}
-									data-field="charisma"
-									style="border-top-right-radius:0"
-								>
-									<Icon name="arrow-counterclockwise" />
-								</Button>
-							</InputGroup>
-						</div>
-						<div style="grid-area: 2/3/2/3">
-							<h5>FEL</h5>
-							<InputGroup>
-								<Input
-									style="text-align:center"
-									placeholder={characterBase.stats.fellowship}
-									bind:value={character.stats.fellowship}
-								/>
-								<Button
-									on:click={resetStat}
-									data-field="fellowship"
-									style="border-top-right-radius:0"
-								>
-									<Icon name="arrow-counterclockwise" />
-								</Button>
-							</InputGroup>
-						</div>
-						<div style="grid-area: 3/3/3/3">
-							<h5>COM</h5>
-							<InputGroup>
-								<Input
-									style="text-align:center"
-									placeholder={characterBase.stats.composure}
-									bind:value={character.stats.composure}
-								/>
-								<Button
-									on:click={resetStat}
-									data-field="composure"
-									style="border-top-right-radius:0"
-								>
-									<Icon name="arrow-counterclockwise" />
-								</Button>
-							</InputGroup>
-						</div>
+					<div id="characteristicsGrid">
+						{#each characteristics as [stat, name], index}
+							<div
+								style="grid-area: {(index % 3) + 1}/{Math.floor(index / 3) + 1}/{(index % 3) +
+									1}/{Math.floor(index / 3) + 1}"
+								data-index={index}
+							>
+								<h5>{name}</h5>
+								<InputGroup>
+									<Input
+										style="text-align:center"
+										placeholder={characterBase.stats[stat]}
+										bind:value={character.stats[stat]}
+										required
+									/>
+									<Button on:click={resetStat} data-field={stat} style="border-top-right-radius:0">
+										<Icon name="arrow-counterclockwise" />
+									</Button>
+								</InputGroup>
+							</div>
+						{/each}
 					</div>
 					<br />
 					<Button href="/characters/{characterBase.id}">Cancel</Button>
@@ -353,12 +285,12 @@
 	.margin {
 		margin-top: 0.5em;
 	}
-	#grid {
+	#characteristicsGrid {
 		display: grid;
 		grid-template-columns: repeat(3, fr);
 		gap: 2px;
 	}
-	#grid > * {
+	#characteristicsGrid > * {
 		text-align: center;
 		border: 1px solid rgba(200, 200, 200, 1);
 		border-radius: 10px;
