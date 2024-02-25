@@ -4,6 +4,7 @@
 	import Characteristics from './Characteristics.svelte';
 	import Overarching from './Overarching.svelte';
 	import { baseUrl } from '$lib/stores.js';
+	import Misc from './Misc.svelte';
 
 	let validated = false;
 	let page = 1;
@@ -85,9 +86,11 @@
 <Form {validated} on:submit={handleSubmit}>
 	<h1>New Character</h1>
 	{#if page === 1}
-		<Overarching bind:character bind:record />
+		<Overarching bind:character />
 	{:else if page === 2}
 		<Characteristics bind:character bind:record />
+	{:else if page === 3}
+		<Misc bind:character bind:record />
 	{/if}
 	<Button type="submit" on:click={handleClick} data-action="-" disabled={page <= 1}>
 		Previous Page
