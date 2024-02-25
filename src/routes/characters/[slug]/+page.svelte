@@ -8,7 +8,7 @@
 	import { page } from '$app/stores';
 	let tab = 'overview';
 
-	let character = {stats: {}};
+	let character = { stats: {}, derived: {} };
 	let owner = false;
 
 	let open = false;
@@ -25,10 +25,13 @@
 		}
 
 		const json = await res.json();
-		
-		character = json.character;
 
-		owner = json.userId == window.localStorage.getItem('id')
+		character = json.character;
+		character.derived = json.derivedStats;
+
+		owner = json.userId == window.localStorage.getItem('id');
+
+		console.log(character);
 	});
 
 	const toggleDeletePrompt = () => {
@@ -93,8 +96,17 @@
 					{/if}
 				</TabPane>
 				<TabPane tabId="stats" tab="Stats">
+					<ul class="list" id="derived">
+						<li><strong>Static Defense: </strong>{character.derived.staticDefense}</li>
+						<li><strong>Max Hit Points: </strong>{character.derived.maxHP}</li>
+						<li><strong>Mental Defense: </strong>{character.derived.mentalDefense}</li>
+						<li><strong>Resilience: </strong>{character.derived.resilience}</li>
+						<li><strong>Resolve: </strong>{character.derived.resolve}</li>
+						<li><strong>Speed: </strong>{character.derived.speed}</li>
+						<li><strong>Initiative: </strong>{character.derived.initiative}</li>
+					</ul>
 					<h4>Characteristics</h4>
-					<div id="grid">
+					<div id="characteristics">
 						<div style="grid-area: 1/1/1/1">
 							<h5>INT</h5>
 							{character.stats.intelligence}
@@ -164,14 +176,18 @@
 	.list ul {
 		list-style-type: '\27B3\00A0';
 	}
-	#grid {
+	#characteristics {
 		display: grid;
 		grid-template-columns: repeat(3, fr);
 		gap: 2px;
 	}
-	#grid > * {
+	#characteristics > * {
 		text-align: center;
 		border: 1px solid rgba(200, 200, 200, 1);
 		border-radius: 10px;
+	}
+	#derived {
+		column-count: 2;
+		column-gap: 3em;
 	}
 </style>
