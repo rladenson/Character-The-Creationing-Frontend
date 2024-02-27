@@ -93,9 +93,9 @@
 	{:else if page === 2}
 		<Characteristics bind:character bind:record />
 	{:else if page === 3}
-		<Misc bind:character bind:record />
-	{:else if page === 4}
 		<Skills bind:character bind:record />
+	{:else if page === 4}
+		<Misc bind:character bind:record />
 	{/if}
 	<Button type="submit" on:click={handleClick} data-action="-" disabled={page <= 1}>
 		Previous Page
