@@ -12,7 +12,7 @@
 
 <h2>Miscellaneous</h2>
 <FormGroup floating label="Size">
-	<Input type="number" bind:value={character.size} style="max-width: {width}" />
+	<Input type="number" bind:value={character.size} required style="max-width: {width}" />
 </FormGroup>
 <FormGroup floating label="XP">
 	<Input type="number" bind:value={character.xp} style="max-width: {width}" />
