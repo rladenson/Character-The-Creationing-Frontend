@@ -4,7 +4,7 @@
 	import { Button, InputGroup, InputGroupText, Input, Form } from '@sveltestrap/sveltestrap';
 	import { Styles, Icon, Modal, ModalFooter } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
-	import { baseUrl, characteristics } from '$lib/stores.js';
+	import { baseUrl, characteristics, skills } from '$lib/stores.js';
 	import { page } from '$app/stores';
 	import { shallowCopyObj as copy } from '$lib/shallowCopyObj.js';
 	import { createPatch } from 'rfc6902';
@@ -76,11 +76,13 @@
 	let errorOpen = false;
 	let errors = [];
 	const errorToggle = () => (errorOpen = !errorOpen);
+	let summary = [];
 	const summaryToggle = () => {
 		if (summaryOpen) return (summaryOpen = false);
 		errors = [];
 		patch = [];
 		statsPatch = [];
+		summary = [];
 		overviewFields.forEach(([field, name, required]) => {
 			if (['completedClasses'].indexOf(field) !== -1) return;
 			let newVal = character[field];
@@ -90,13 +92,16 @@
 			if (newVal === '') {
 				if (required) return errors.push(name);
 				if (oldVal === null) return;
-				return patch.push({ op: 'remove', path: `/${field}` });
+				patch.push({ op: 'remove', path: `/${field}` });
+				summary.push([name, oldVal, newVal]);
+				return;
 			}
 			if (oldVal == newVal) return;
 			patch.push({ op: 'replace', path: `/${field}`, value: newVal });
+			summary.push([name, oldVal, newVal]);
 		});
 		getClassesPatch();
-		characteristics.forEach(({ stat }) => {
+		characteristics.forEach(({ stat, name }) => {
 			let newVal = Number(character.stats[stat]);
 			newVal = Number(newVal);
 			if (isNaN(newVal) || newVal < 1) return errors.push(stat);
@@ -105,6 +110,18 @@
 
 			if (oldVal == newVal) return;
 			statsPatch.push({ op: 'replace', path: `/${stat}`, value: newVal });
+			summary.push([name, oldVal, newVal]);
+		});
+		skills.forEach(({ stat, name }) => {
+			let newVal = Number(character.stats[stat]);
+			newVal = Number(newVal);
+			if (isNaN(newVal) || newVal < 0) return errors.push(stat);
+
+			const oldVal = Number(characterBase.stats[stat]);
+
+			if (oldVal == newVal) return;
+			statsPatch.push({ op: 'replace', path: `/${stat}`, value: newVal });
+			summary.push([name, oldVal, newVal]);
 		});
 		if (errors.length > 0) return (errorOpen = true);
 		if (patch.length === 0 && statsPatch.length === 0) return;
@@ -126,7 +143,10 @@
 			{ completedClasses: oldClasses },
 			{ completedClasses: newClasses }
 		);
-		if (classesPatch.length > 0) patch.push(...classesPatch);
+		if (classesPatch.length === 0) return;
+		
+		patch.push(...classesPatch);
+		summary.push(["Completed Classes", oldClasses ? oldClasses : "None", midClasses])
 	};
 
 	const submit = async (e) => {
@@ -179,33 +199,16 @@
 </Modal>
 <Modal isOpen={summaryOpen} toggle={summaryToggle} header="Confirm Submission?" body scrollable>
 	<ul id="summary-list">
-		{#each overviewFields as [field, name]}
-			{#if character[field] != characterBase[field]}
-				<li>
-					<strong>{name}: </strong>
-					{characterBase[field]}
-					<Icon name="arrow-right" />
-					{#if character[field] && character[field] !== ''}
-						{character[field]}
-					{:else}
-						<i>&lt;blank&gt;</i>
-					{/if}
-				</li>
-			{/if}
-		{/each}
-		{#each characteristics as { stat, name }}
-			{#if character.stats[stat] != characterBase.stats[stat]}
-				<li>
-					<strong>{name}: </strong>
-					{characterBase.stats[stat]}
-					<Icon name="arrow-right" />
-					{#if character.stats[stat] && character.stats[stat] !== ''}
-						{character.stats[stat]}
-					{:else}
-						<i>&lt;blank&gt;</i>
-					{/if}
-				</li>
-			{/if}
+		{#each summary as [name, oldVal, newVal]}
+			<li>
+				<strong>{name}: </strong>{oldVal}
+				<Icon name="arrow-right" />
+				{#if newVal && newVal !== ''}
+					{newVal}
+				{:else}
+					<i>&lt;blank&gt;</i>
+				{/if}
+			</li>
 		{/each}
 	</ul>
 	<ModalFooter>
@@ -254,9 +257,31 @@
 				<TabPane tabId="stats" tab="Stats">
 					<h4>Characteristics</h4>
 					<div id="characteristicsGrid">
-						{#each characteristics as {stat, name}}
+						{#each characteristics as { stat, name }}
 							<div>
 								<h5>{name}</h5>
+								<InputGroup>
+									<Input
+										style="text-align:center"
+										placeholder={characterBase.stats[stat]}
+										bind:value={character.stats[stat]}
+										required
+									/>
+									<Button on:click={resetStat} data-field={stat} style="border-top-right-radius:0">
+										<Icon name="arrow-counterclockwise" />
+									</Button>
+								</InputGroup>
+							</div>
+						{/each}
+					</div>
+					<br />
+					<h4>Skills</h4>
+					<div id="skillsGrid">
+						{#each skills as { stat, name, advanced }}
+							<div>
+								<h5>
+									{name}{#if advanced}*{/if}
+								</h5>
 								<InputGroup>
 									<Input
 										style="text-align:center"
@@ -295,16 +320,21 @@
 	.margin {
 		margin-top: 0.5em;
 	}
-	#characteristicsGrid {
+	#characteristicsGrid,
+	#skillsGrid {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		grid-template-rows: repeat(3, 1fr);
 		grid-auto-flow: column;
 		gap: 2px;
 	}
-	#characteristicsGrid > * {
+	#characteristicsGrid > *,
+	#skillsGrid > * {
 		text-align: center;
 		border: 1px solid rgba(200, 200, 200, 1);
 		border-radius: 10px;
+	}
+	#skillsGrid {
+		grid-template-rows: repeat(9, 1fr);
 	}
 </style>
