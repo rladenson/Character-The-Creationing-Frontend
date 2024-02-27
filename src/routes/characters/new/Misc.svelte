@@ -40,7 +40,10 @@
 	<FormGroup floating label="Completed Classes (Separate with Commas)">
 		<Input type="text" bind:value={character.completedClasses} style="max-width: {width}" />
 	</FormGroup>
-	<FormGroup floating label="Level (Character level is equal to level of highest class completed or currently in)">
+	<FormGroup
+		floating
+		label="Level (Character level is equal to level of highest class completed or currently in)"
+	>
 		<Input type="number" bind:value={character.level} style="max-width: {width}" />
 	</FormGroup>
 {/if}

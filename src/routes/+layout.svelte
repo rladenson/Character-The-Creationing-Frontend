@@ -13,9 +13,9 @@
 	<NavbarBrand href="/">Home</NavbarBrand>
 	<Nav underline theme="dark">
 		{#if $page.data.token}
-		<NavItem>
-			<NavLink href="/characters">My Characters</NavLink>
-		</NavItem>
+			<NavItem>
+				<NavLink href="/characters">My Characters</NavLink>
+			</NavItem>
 			<NavItem>
 				<NavLink href="/characters/new">New Character</NavLink>
 			</NavItem>
@@ -32,9 +32,7 @@
 				<NavLink href="/signup">Signup</NavLink>
 			</NavItem>
 		{:else}
-			<NavItem style="color: white">
-				Loading...
-			</NavItem>
+			<NavItem style="color: white">Loading...</NavItem>
 		{/if}
 	</Nav>
 </Navbar>

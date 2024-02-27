@@ -3,47 +3,47 @@ export const baseUrl = 'http://localhost:8080/';
 export const characteristics = [
 	{
 		stat: 'intelligence',
-        name: 'Intelligence',
+		name: 'Intelligence',
 		abbrev: 'INT'
 	},
 	{
 		stat: 'wisdom',
-        name: 'Wisdom',
+		name: 'Wisdom',
 		abbrev: 'WIS'
 	},
 	{
 		stat: 'willpower',
-        name: 'Willpower',
+		name: 'Willpower',
 		abbrev: 'WIL'
 	},
 	{
 		stat: 'strength',
-        name: 'Strength',
+		name: 'Strength',
 		abbrev: 'STR'
 	},
 	{
 		stat: 'dexterity',
-        name: 'Dexterity',
+		name: 'Dexterity',
 		abbrev: 'DEX'
 	},
 	{
 		stat: 'constitution',
-        name: 'Constitution',
+		name: 'Constitution',
 		abbrev: 'CON'
 	},
 	{
 		stat: 'charisma',
-        name: 'Charisma',
+		name: 'Charisma',
 		abbrev: 'CHA'
 	},
 	{
 		stat: 'fellowship',
-        name: 'Fellowship',
+		name: 'Fellowship',
 		abbrev: 'FEL'
 	},
 	{
 		stat: 'composure',
-        name: 'Composure',
+		name: 'Composure',
 		abbrev: 'COM'
 	}
 ];
@@ -103,112 +103,112 @@ export const skills = [
 		advanced: false,
 		type: 'mental'
 	},
-    {
-        stat: 'acrobatics',
-        name: 'Acrobatics',
-        advanced: true,
-        type: 'physical'
-    },
-    {
-        stat: 'athletics',
-        name: 'Athletics',
-        advanced: false,
-        type: 'physical'
-    },
-    {
-        stat: 'drive',
-        name: 'Drive',
-        advanced: false,
-        type: 'physical'
-    },
-    {
-        stat: 'larceny',
-        name: 'Larceny',
-        advanced: false,
-        type: 'physical'
-    },
-    {
-        stat: 'pilot',
-        name: 'Pilot',
-        advanced: true,
-        type: 'physical'
-    },
-    {
-        stat: 'stealth',
-        name: 'Stealth',
-        advanced: false,
-        type: 'physical'
-    },
-    {
-        stat: 'ballistics',
-        name: 'Ballistics',
-        advanced: false,
-        type: 'physical'
-    },
-    {
-        stat: 'brawl',
-        name: 'Brawl',
-        advanced: false,
-        type: 'physical'
-    },
-    {
-        stat: 'weaponry',
-        name: 'Weaponry',
-        advanced: false,
-        type: 'physical'
-    },
-    {
-        stat: 'animalKen',
-        name: 'Animal Ken',
-        advanced: false,
-        type: 'social'
-    },
-    {
-        stat: 'charm',
-        name: 'Charm',
-        advanced: false,
-        type: 'social'
-    },
-    {
-        stat: 'command',
-        name: 'Command',
-        advanced: false,
-        type: 'social'
-    },
-    {
-        stat: 'deceive',
-        name: 'Deceive',
-        advanced: false,
-        type: 'social'
-    },
-    {
-        stat: 'disguise',
-        name: 'Disguise',
-        advanced: false,
-        type: 'social'
-    },
-    {
-        stat: 'intimidation',
-        name: 'Intimidation',
-        advanced: false,
-        type: 'social'
-    },
-    {
-        stat: 'performer',
-        name: 'Performer',
-        advanced: false,
-        type: 'social'
-    },
-    {
-        stat: 'persuasion',
-        name: 'Persuasion',
-        advanced: false,
-        type: 'social'
-    },
-    {
-        stat: 'scrutiny',
-        name: 'Scrutiny',
-        advanced: false,
-        type: 'social'
-    },
+	{
+		stat: 'acrobatics',
+		name: 'Acrobatics',
+		advanced: true,
+		type: 'physical'
+	},
+	{
+		stat: 'athletics',
+		name: 'Athletics',
+		advanced: false,
+		type: 'physical'
+	},
+	{
+		stat: 'drive',
+		name: 'Drive',
+		advanced: false,
+		type: 'physical'
+	},
+	{
+		stat: 'larceny',
+		name: 'Larceny',
+		advanced: false,
+		type: 'physical'
+	},
+	{
+		stat: 'pilot',
+		name: 'Pilot',
+		advanced: true,
+		type: 'physical'
+	},
+	{
+		stat: 'stealth',
+		name: 'Stealth',
+		advanced: false,
+		type: 'physical'
+	},
+	{
+		stat: 'ballistics',
+		name: 'Ballistics',
+		advanced: false,
+		type: 'physical'
+	},
+	{
+		stat: 'brawl',
+		name: 'Brawl',
+		advanced: false,
+		type: 'physical'
+	},
+	{
+		stat: 'weaponry',
+		name: 'Weaponry',
+		advanced: false,
+		type: 'physical'
+	},
+	{
+		stat: 'animalKen',
+		name: 'Animal Ken',
+		advanced: false,
+		type: 'social'
+	},
+	{
+		stat: 'charm',
+		name: 'Charm',
+		advanced: false,
+		type: 'social'
+	},
+	{
+		stat: 'command',
+		name: 'Command',
+		advanced: false,
+		type: 'social'
+	},
+	{
+		stat: 'deceive',
+		name: 'Deceive',
+		advanced: false,
+		type: 'social'
+	},
+	{
+		stat: 'disguise',
+		name: 'Disguise',
+		advanced: false,
+		type: 'social'
+	},
+	{
+		stat: 'intimidation',
+		name: 'Intimidation',
+		advanced: false,
+		type: 'social'
+	},
+	{
+		stat: 'performer',
+		name: 'Performer',
+		advanced: false,
+		type: 'social'
+	},
+	{
+		stat: 'persuasion',
+		name: 'Persuasion',
+		advanced: false,
+		type: 'social'
+	},
+	{
+		stat: 'scrutiny',
+		name: 'Scrutiny',
+		advanced: false,
+		type: 'social'
+	}
 ];

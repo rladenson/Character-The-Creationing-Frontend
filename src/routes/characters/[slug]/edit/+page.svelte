@@ -144,9 +144,9 @@
 			{ completedClasses: newClasses }
 		);
 		if (classesPatch.length === 0) return;
-		
+
 		patch.push(...classesPatch);
-		summary.push(["Completed Classes", oldClasses ? oldClasses : "None", midClasses])
+		summary.push(['Completed Classes', oldClasses ? oldClasses : 'None', midClasses]);
 	};
 
 	const submit = async (e) => {

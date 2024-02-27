@@ -117,7 +117,11 @@
 </script>
 
 <h2>Characteristics</h2>
-<Alert id="cha-dupe-error" color="danger" hidden={(primary !== secondary && primary !== tertiary && secondary !== tertiary) ? "" : null}>
+<Alert
+	id="cha-dupe-error"
+	color="danger"
+	hidden={primary !== secondary && primary !== tertiary && secondary !== tertiary ? '' : null}
+>
 	Each priority (primary, secondary, tertiary) must have a unique characteristic category (mental,
 	physical, social).
 </Alert>
@@ -241,9 +245,7 @@
 					readonly
 					id="physical-total"
 					bind:value={physical}
-					class={physical.split(' ')[0] === physical.split(' ')[3]
-						? 'is-valid'
-						: 'is-invalid'}
+					class={physical.split(' ')[0] === physical.split(' ')[3] ? 'is-valid' : 'is-invalid'}
 				/>
 			</td>
 			<td>
