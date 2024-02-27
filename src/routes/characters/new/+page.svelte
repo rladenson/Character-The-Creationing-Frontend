@@ -3,12 +3,13 @@
 	import { shallowCopyObj as copy } from '$lib/shallowCopyObj.js';
 	import Characteristics from './Characteristics.svelte';
 	import Overarching from './Overarching.svelte';
+	import Skills from './Skills.svelte';
 	import { baseUrl } from '$lib/stores.js';
 	import Misc from './Misc.svelte';
 
 	let validated = false;
 	let page = 1;
-	const maxPage = 3;
+	const maxPage = 4;
 	const characterBase = {
 		characteristics: {
 			intelligence: 1,
@@ -21,6 +22,7 @@
 			fellowship: 1,
 			composure: 1
 		},
+		skills: { mental: {}, social: {}, physical: {} },
 		level: 1
 	};
 	const recordBase = {
@@ -62,7 +64,8 @@
 				'Content-Type': 'application/json'
 			}
 		});
-		if (res.status === 201) window.location.replace(`/characters/${(await res.json()).character.id}`);
+		if (res.status === 201)
+			window.location.replace(`/characters/${(await res.json()).character.id}`);
 		else console.log(res);
 	};
 	const handleClick = (e) => {
@@ -91,6 +94,8 @@
 		<Characteristics bind:character bind:record />
 	{:else if page === 3}
 		<Misc bind:character bind:record />
+	{:else if page === 4}
+		<Skills bind:character bind:record />
 	{/if}
 	<Button type="submit" on:click={handleClick} data-action="-" disabled={page <= 1}>
 		Previous Page
