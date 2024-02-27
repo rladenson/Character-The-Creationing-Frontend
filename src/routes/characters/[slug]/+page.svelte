@@ -3,7 +3,7 @@
 	import { TabContent, TabPane } from '@sveltestrap/sveltestrap';
 	import { Modal, ModalFooter } from '@sveltestrap/sveltestrap';
 	import { Button, Spinner, Alert } from '@sveltestrap/sveltestrap';
-	import { baseUrl } from '$lib/stores.js';
+	import { baseUrl, characteristics, skills } from '$lib/stores.js';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	let tab = 'overview';
@@ -76,7 +76,7 @@
 		</CardHeader>
 		<CardBody>
 			<TabContent on:tab={(e) => (tab = e.detail)}>
-				<TabPane tabId="overview" tab="Overview">
+				<TabPane tabId="overview" tab="Overview" active>
 					<ul class="list">
 						<li><strong>Race: </strong>{character.race}<br /></li>
 						<li><strong>Current Class: </strong>{character.currentClass}</li>
@@ -95,7 +95,7 @@
 						<Button on:click={toggleDeletePrompt} color="danger">Delete</Button>
 					{/if}
 				</TabPane>
-				<TabPane tabId="stats" tab="Stats" active>
+				<TabPane tabId="stats" tab="Stats">
 					<ul class="list" id="derived">
 						<li><strong>Static Defense: </strong>{character.derived.staticDefense}</li>
 						<li><strong>Max Hit Points: </strong>{character.derived.maxHP}</li>
@@ -107,153 +107,23 @@
 					</ul>
 					<h3>Characteristics</h3>
 					<div id="characteristics">
-						<div style="grid-area: 1/1/1/1">
-							<h5>INT</h5>
-							{character.stats.intelligence}
-						</div>
-						<div style="grid-area: 2/1/2/1">
-							<h5>WIS</h5>
-							{character.stats.wisdom}
-						</div>
-						<div style="grid-area: 3/1/3/1">
-							<h5>WIL</h5>
-							{character.stats.willpower}
-						</div>
-						<div style="grid-area: 1/2/1/2">
-							<h5>STR</h5>
-							{character.stats.strength}
-						</div>
-						<div style="grid-area: 2/2/2/2">
-							<h5>DEX</h5>
-							{character.stats.dexterity}
-						</div>
-						<div style="grid-area: 3/2/3/2">
-							<h5>CON</h5>
-							{character.stats.constitution}
-						</div>
-						<div style="grid-area: 1/3/1/3">
-							<h5>CHA</h5>
-							{character.stats.charisma}
-						</div>
-						<div style="grid-area: 2/3/2/3">
-							<h5>FEL</h5>
-							{character.stats.fellowship}
-						</div>
-						<div style="grid-area: 3/3/3/3">
-							<h5>COM</h5>
-							{character.stats.composure}
-						</div>
+						{#each characteristics as char}
+							<div>
+								<h5>{char.abbrev}</h5>
+								{character.stats[char.stat]}
+							</div>
+						{/each}
 					</div>
 					<h3>Skills</h3>
 					<div id="skills">
-						<div>
-							<h5>Academic Lore*</h5>
-							{character.stats.academicLore}
-						</div>
-						<div>
-							<h5>Arcana*</h5>
-							{character.stats.arcana}
-						</div>
-						<div>
-							<h5>Common Lore*</h5>
-							{character.stats.commonLore}
-						</div>
-						<div>
-							<h5>Crafts</h5>
-							{character.stats.crafts}
-						</div>
-						<div>
-							<h5>Forbidden Lore*</h5>
-							{character.stats.forbiddenLore}
-						</div>
-						<div>
-							<h5>Medicae*</h5>
-							{character.stats.medicae}
-						</div>
-						<div>
-							<h5>Perception</h5>
-							{character.stats.perception}
-						</div>
-						<div>
-							<h5>Politics*</h5>
-							{character.stats.politics}
-						</div>
-						<div>
-							<h5>Tech-Use</h5>
-							{character.stats.techUse}
-						</div>
-						<div>
-							<h5>Acrobatics*</h5>
-						{character.stats.acrobatics}
-						</div>
-						<div>
-							<h5>Athletics</h5>
-						{character.stats.athletics}
-						</div>
-						<div>
-							<h5>Drive</h5>
-						{character.stats.drive}
-						</div>
-						<div>
-							<h5>Larceny</h5>
-						{character.stats.larceny}
-						</div>
-						<div>
-							<h5>Pilot*</h5>
-						{character.stats.pilot}
-						</div>
-						<div>
-							<h5>Stealth</h5>
-						{character.stats.stealth}
-						</div>
-						<div>
-							<h5>Ballistics</h5>
-						{character.stats.ballistics}
-						</div>
-						<div>
-							<h5>Brawl</h5>
-						{character.stats.brawl}
-						</div>
-						<div>
-							<h5>Weaponry</h5>
-						{character.stats.weaponry}
-						</div>
-						<div>
-							<h5>Animal Ken</h5>
-						{character.stats.animalKen}
-						</div>
-						<div>
-							<h5>Charm</h5>
-						{character.stats.charm}
-						</div>
-						<div>
-							<h5>Command</h5>
-						{character.stats.command}
-						</div>
-						<div>
-							<h5>Deceive</h5>
-						{character.stats.deceive}
-						</div>
-						<div>
-							<h5>Disguise</h5>
-						{character.stats.disguise}
-						</div>
-						<div>
-							<h5>Intimidation</h5>
-						{character.stats.intimidation}
-						</div>
-						<div>
-							<h5>Performer</h5>
-						{character.stats.performer}
-						</div>
-						<div>
-							<h5>Persuasion</h5>
-						{character.stats.persuasion}
-						</div>
-						<div>
-							<h5>Scrutiny</h5>
-						{character.stats.scrutiny}
-						</div>
+						{#each skills as skill}
+							<div>
+								<h5>
+									{skill.name}{#if skill.advanced}*{/if}
+								</h5>
+								{character.stats[skill.stat]}
+							</div>
+						{/each}
 					</div>
 					<br />
 					{#if owner}
@@ -289,10 +159,12 @@
 	}
 	#characteristics {
 		display: grid;
-		grid-template-columns: repeat(3, 1fr);
+		grid-template-rows: repeat(3, 1fr);
+		grid-auto-flow: column;
 		gap: 2px;
 	}
-	#characteristics > div, #skills > div {
+	#characteristics > div,
+	#skills > div {
 		text-align: center;
 		border: 1px solid rgba(200, 200, 200, 1);
 		border-radius: 10px;

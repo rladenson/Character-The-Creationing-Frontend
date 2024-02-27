@@ -4,7 +4,7 @@
 	import { Button, InputGroup, InputGroupText, Input, Form } from '@sveltestrap/sveltestrap';
 	import { Styles, Icon, Modal, ModalFooter } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
-	import { baseUrl } from '$lib/stores.js';
+	import { baseUrl, characteristics } from '$lib/stores.js';
 	import { page } from '$app/stores';
 	import { shallowCopyObj as copy } from '$lib/shallowCopyObj.js';
 	import { createPatch } from 'rfc6902';
@@ -19,17 +19,6 @@
 		['alignment', 'Alignment', false],
 		['currentClass', 'Class', true],
 		['completedClasses', 'Completed Classes*', false]
-	];
-	let characteristics = [
-		['intelligence', 'INT'],
-		['wisdom', 'WIS'],
-		['willpower', 'WIL'],
-		['strength', 'STR'],
-		['dexterity', 'DEX'],
-		['constitution', 'CON'],
-		['charisma', 'CHA'],
-		['fellowship', 'FEL'],
-		['composure', 'COM']
 	];
 	const globalStyle = '<style>input::placeholder{font-style:italic}</style>';
 
@@ -67,13 +56,15 @@
 
 		characterBase = char;
 		characterBase.completedClasses =
-			characterBase.completedClasses.length > 0
+			characterBase.completedClasses && characterBase.completedClasses.length > 0
 				? characterBase.completedClasses.reduce((prev, cur) => {
 						if (prev) prev += ', ' + cur;
 					})
 				: '';
 
 		character = copy(characterBase);
+
+		console.log(character);
 	});
 
 	let summaryOpen = false;
@@ -105,7 +96,7 @@
 			patch.push({ op: 'replace', path: `/${field}`, value: newVal });
 		});
 		getClassesPatch();
-		characteristics.forEach(([stat, _]) => {
+		characteristics.forEach(({ stat }) => {
 			let newVal = Number(character.stats[stat]);
 			newVal = Number(newVal);
 			if (isNaN(newVal) || newVal < 1) return errors.push(stat);
@@ -202,7 +193,7 @@
 				</li>
 			{/if}
 		{/each}
-		{#each characteristics as [stat, name]}
+		{#each characteristics as { stat, name }}
 			{#if character.stats[stat] != characterBase.stats[stat]}
 				<li>
 					<strong>{name}: </strong>
@@ -263,12 +254,8 @@
 				<TabPane tabId="stats" tab="Stats">
 					<h4>Characteristics</h4>
 					<div id="characteristicsGrid">
-						{#each characteristics as [stat, name], index}
-							<div
-								style="grid-area: {(index % 3) + 1}/{Math.floor(index / 3) + 1}/{(index % 3) +
-									1}/{Math.floor(index / 3) + 1}"
-								data-index={index}
-							>
+						{#each characteristics as {stat, name}}
+							<div>
 								<h5>{name}</h5>
 								<InputGroup>
 									<Input
@@ -310,7 +297,9 @@
 	}
 	#characteristicsGrid {
 		display: grid;
-		grid-template-columns: repeat(3, fr);
+		grid-template-columns: repeat(3, 1fr);
+		grid-template-rows: repeat(3, 1fr);
+		grid-auto-flow: column;
 		gap: 2px;
 	}
 	#characteristicsGrid > * {
