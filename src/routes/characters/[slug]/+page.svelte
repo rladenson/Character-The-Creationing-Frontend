@@ -8,7 +8,10 @@
 	import { page } from '$app/stores';
 	let tab = 'overview';
 
-	let character = { stats: {}, derived: {} };
+	let character = {
+		stats: { mentalSkills: {}, physicalSkills: {}, socialSkills: {} },
+		derived: {}
+	};
 	let owner = false;
 
 	let open = false;
@@ -116,12 +119,12 @@
 					</div>
 					<h3>Skills</h3>
 					<div id="skills">
-						{#each skills as skill}
+						{#each skills as { stat, name, advanced, type }}
 							<div>
 								<h5>
-									{skill.name}{#if skill.advanced}*{/if}
+									{name}{#if advanced}*{/if}
 								</h5>
-								{character.stats[skill.stat]}
+								{character.stats[`${type}Skills`][stat]}
 							</div>
 						{/each}
 					</div>
