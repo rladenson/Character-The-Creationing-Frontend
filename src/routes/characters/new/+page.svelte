@@ -22,7 +22,9 @@
 			fellowship: 1,
 			composure: 1
 		},
-		skills: { mental: {}, social: {}, physical: {} },
+		mentalSkills: {},
+		physicalSkills: {},
+		socialSkills: {},
 		level: 1
 	};
 	const recordBase = {

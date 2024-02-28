@@ -1,20 +1,22 @@
 <script>
 	import { Input, FormGroup, Alert } from '@sveltestrap/sveltestrap';
 	import { browser } from '$app/environment';
-	import { mentalSkills, physicalSkills, socialSkills } from '$lib/stores.js';
+	import { mentalSkills as mentalList, physicalSkills as physicalList, socialSkills as socialList } from '$lib/stores.js';
 	export let character, record;
-	let skills = character.skills;
+	const mentalSkills = character.mentalSkills;
+	const physicalSkills = character.physicalSkills;
+	const socialSkills = character.socialSkills;
 
 	const checkTotal = (stat, statMax, statName) => {
 		switch (statName) {
 			case 'mental':
-				mental = updateSkill(skills.mental, mentalMax);
+				mental = updateSkill(mentalSkills, mentalMax);
 				break;
 			case 'physical':
-				physical = updateSkill(skills.physical, physicalMax);
+				physical = updateSkill(physicalSkills, physicalMax);
 				break;
 			case 'social':
-				social = updateSkill(skills.social, socialMax);
+				social = updateSkill(socialSkills, socialMax);
 				break;
 		}
 	};
@@ -28,17 +30,17 @@
 
 	let mental = 0;
 	let mentalMax = 8;
-	$: mental = updateSkill(skills.mental, mentalMax);
+	$: mental = updateSkill(mentalSkills, mentalMax);
 	$: checkTotal(mental, mentalMax, 'mental');
 
 	let physical = 0;
 	let physicalMax = 6;
-	$: physical = updateSkill(skills.physical, physicalMax);
+	$: physical = updateSkill(physicalSkills, physicalMax);
 	$: checkTotal(physical, physicalMax, 'physical');
 
 	let social = 0;
 	let socialMax = 4;
-	$: social = updateSkill(skills.social, socialMax);
+	$: social = updateSkill(socialSkills, socialMax);
 	$: checkTotal(social, socialMax, 'social');
 
 	let primary = record.primary;
@@ -143,10 +145,10 @@
 </div>
 <div id="skills">
 	<h4>Mental</h4>
-	{#each mentalSkills as { stat, name, advanced }}
+	{#each mentalList as { stat, name, advanced }}
 		<div>
 			<FormGroup floating label={name + (advanced ? '*' : '')}>
-				<Input type="number" min="0" max="3" bind:value={skills.mental[stat]} />
+				<Input type="number" min="0" max="3" bind:value={mentalSkills[stat]} />
 			</FormGroup>
 		</div>
 	{/each}
@@ -162,10 +164,10 @@
 
 	<h4>Physical</h4>
 
-	{#each physicalSkills as { stat, name, advanced }}
+	{#each physicalList as { stat, name, advanced }}
 		<div>
 			<FormGroup floating label={name + (advanced ? '*' : '')}>
-				<Input type="number" min="0" max="3" bind:value={skills.physical[stat]} />
+				<Input type="number" min="0" max="3" bind:value={physicalSkills[stat]} />
 			</FormGroup>
 		</div>
 	{/each}
@@ -181,10 +183,10 @@
 
 	<h4>Social</h4>
 
-	{#each socialSkills as { stat, name, advanced }}
+	{#each socialList as { stat, name, advanced }}
 		<div>
 			<FormGroup floating label={name + (advanced ? '*' : '')}>
-				<Input type="number" min="0" max="3" bind:value={skills.mental[stat]} />
+				<Input type="number" min="0" max="3" bind:value={socialSkills[stat]} />
 			</FormGroup>
 		</div>
 	{/each}
