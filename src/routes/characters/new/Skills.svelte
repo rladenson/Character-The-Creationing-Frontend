@@ -1,6 +1,7 @@
 <script>
-	import { Input, FormGroup, Table, Button, Alert } from '@sveltestrap/sveltestrap';
+	import { Input, FormGroup, Alert } from '@sveltestrap/sveltestrap';
 	import { browser } from '$app/environment';
+	import { mentalSkills, physicalSkills, socialSkills } from '$lib/stores.js';
 	export let character, record;
 	let skills = character.skills;
 
@@ -142,52 +143,14 @@
 </div>
 <div id="skills">
 	<h4>Mental</h4>
+	{#each mentalSkills as { stat, name, advanced }}
+		<div>
+			<FormGroup floating label={name + (advanced ? '*' : '')}>
+				<Input type="number" min="0" max="3" bind:value={skills.mental[stat]} />
+			</FormGroup>
+		</div>
+	{/each}
 
-	<div>
-		<FormGroup floating label="Academic Lore*">
-			<Input type="number" min="0" max="3" bind:value={skills.mental.academicLore} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Arcana">
-			<Input type="number" min="0" max="3" bind:value={skills.mental.arcana} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Common Lore*">
-			<Input type="number" min="0" max="3" bind:value={skills.mental.commonLore} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Crafts*">
-			<Input type="number" min="0" max="3" bind:value={skills.mental.crafts} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Forbidden Lore*">
-			<Input type="number" min="0" max="3" bind:value={skills.mental.forbiddenLore} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Medicae*">
-			<Input type="number" min="0" max="3" bind:value={skills.mental.medicae} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Perception">
-			<Input type="number" min="0" max="3" bind:value={skills.mental.perception} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Politics*">
-			<Input type="number" min="0" max="3" bind:value={skills.mental.politics} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Tech-Use">
-			<Input type="number" min="0" max="3" bind:value={skills.mental.techUse} />
-		</FormGroup>
-	</div>
 	<div>
 		<Input
 			readonly
@@ -199,51 +162,14 @@
 
 	<h4>Physical</h4>
 
-	<div>
-		<FormGroup floating label="Acrobatics*">
-			<Input type="number" min="0" max="3" bind:value={skills.physical.acrobatics} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Athletics">
-			<Input type="number" min="0" max="3" bind:value={skills.physical.athletics} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Drive">
-			<Input type="number" min="0" max="3" bind:value={skills.physical.drive} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Larceny">
-			<Input type="number" min="0" max="3" bind:value={skills.physical.larceny} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Pilot*">
-			<Input type="number" min="0" max="3" bind:value={skills.physical.pilot} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Stealth">
-			<Input type="number" min="0" max="3" bind:value={skills.physical.stealth} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Ballistics">
-			<Input type="number" min="0" max="3" bind:value={skills.physical.ballistics} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Brawl">
-			<Input type="number" min="0" max="3" bind:value={skills.physical.brawl} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Weaponry">
-			<Input type="number" min="0" max="3" bind:value={skills.physical.weaponry} />
-		</FormGroup>
-	</div>
+	{#each physicalSkills as { stat, name, advanced }}
+		<div>
+			<FormGroup floating label={name + (advanced ? '*' : '')}>
+				<Input type="number" min="0" max="3" bind:value={skills.physical[stat]} />
+			</FormGroup>
+		</div>
+	{/each}
+
 	<div>
 		<Input
 			readonly
@@ -255,51 +181,13 @@
 
 	<h4>Social</h4>
 
-	<div>
-		<FormGroup floating label="Animal Ken">
-			<Input type="number" min="0" max="3" bind:value={skills.social.animalKen} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Charm">
-			<Input type="number" min="0" max="3" bind:value={skills.social.charm} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Command">
-			<Input type="number" min="0" max="3" bind:value={skills.social.command} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Deceive">
-			<Input type="number" min="0" max="3" bind:value={skills.social.deceive} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Disguise">
-			<Input type="number" min="0" max="3" bind:value={skills.social.disguise} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Intimidation">
-			<Input type="number" min="0" max="3" bind:value={skills.social.intimidation} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Performer">
-			<Input type="number" min="0" max="3" bind:value={skills.social.performer} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Persuasion">
-			<Input type="number" min="0" max="3" bind:value={skills.social.persuasion} />
-		</FormGroup>
-	</div>
-	<div>
-		<FormGroup floating label="Scrutiny">
-			<Input type="number" min="0" max="3" bind:value={skills.social.scrutiny} />
-		</FormGroup>
-	</div>
+	{#each socialSkills as { stat, name, advanced }}
+		<div>
+			<FormGroup floating label={name + (advanced ? '*' : '')}>
+				<Input type="number" min="0" max="3" bind:value={skills.mental[stat]} />
+			</FormGroup>
+		</div>
+	{/each}
 
 	<div>
 		<Input

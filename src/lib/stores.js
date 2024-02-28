@@ -48,7 +48,7 @@ export const characteristics = [
 	}
 ];
 
-export const skills = [
+export const mentalSkills = [
 	{
 		stat: 'academicLore',
 		name: 'Academic Lore',
@@ -103,6 +103,10 @@ export const skills = [
 		advanced: false,
 		type: 'mental'
 	},
+];
+
+export const physicalSkills = [
+	
 	{
 		stat: 'acrobatics',
 		name: 'Acrobatics',
@@ -157,6 +161,10 @@ export const skills = [
 		advanced: false,
 		type: 'physical'
 	},
+];
+
+export const socialSkills = [
+	
 	{
 		stat: 'animalKen',
 		name: 'Animal Ken',
@@ -212,3 +220,5 @@ export const skills = [
 		type: 'social'
 	}
 ];
+
+export const skills =[...mentalSkills, ...physicalSkills, ...socialSkills];
