@@ -18,13 +18,14 @@
 	let status = '';
 
 	onMount(async () => {
+		const token = window.localStorage.getItem("accessToken");
 		const res = await fetch(baseUrl + `api/characters/${$page.params.slug}`, {
 			headers: {
-				Authorization: 'Bearer ' + window.localStorage.getItem('accessToken')
+				Authorization: token ? ('Bearer ' + token) : null,
 			}
 		});
 		if (res.status !== 200) {
-			throw error(res.status);
+			window.location.replace('/');
 		}
 
 		const json = await res.json();
