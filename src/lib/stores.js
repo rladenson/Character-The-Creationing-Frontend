@@ -1,4 +1,6 @@
-export const baseUrl = 'http://localhost:8080/';
+import { PUBLIC_BASE_URL } from "$env/static/public"
+
+export const baseUrl = PUBLIC_BASE_URL;
 
 export const characteristics = [
 	{
