@@ -8,14 +8,11 @@
 	import { page } from '$app/stores';
 	let tab = 'overview';
 
-	let character = {
-		stats: { mentalSkills: {}, physicalSkills: {}, socialSkills: {} },
-		derived: {}
-	};
+	let character = {};
 	let owner = false;
 
 	let open = false;
-	let status = '';
+	let status = 'loading';
 
 	onMount(async () => {
 		const token = window.localStorage.getItem("accessToken");
@@ -35,7 +32,7 @@
 
 		owner = json.userId == window.localStorage.getItem('id');
 
-		console.log(character);
+		status = '';
 	});
 
 	const toggleDeletePrompt = () => {
@@ -138,6 +135,8 @@
 			</TabContent>
 		</CardBody>
 	</Card>
+{:else if status === 'loading'}
+<h1>Loading...</h1>
 {:else if status === 'deleting'}
 	<Alert color="info">
 		<Spinner color="info" />&nbsp;&nbsp;
