@@ -9,16 +9,16 @@
 	import { shallowCopyObj as copy } from '$lib/shallowCopyObj.js';
 	import { createPatch } from 'rfc6902';
 	let tab = 'overview';
-	let character = { stats: {} };
-	let characterBase = { stats: {} };
+	let character = {};
+	let characterBase = {};
 	let overviewFields = [
-		['name', 'Name', true],
-		['age', 'Age', false],
-		['race', 'Race', true],
-		['exaltation', 'Exaltation', true],
-		['alignment', 'Alignment', false],
-		['currentClass', 'Class', true],
-		['completedClasses', 'Completed Classes*', false]
+		['name', 'Name', true, 'string'],
+		['age', 'Age', false, 'number'],
+		['race', 'Race', true, 'string'],
+		['exaltation', 'Exaltation', true, 'string'],
+		['alignment', 'Alignment', false, 'string'],
+		['currentClass', 'Class', true, 'string'],
+		['completedClasses', 'Completed Classes*', false, 'array']
 	];
 	const globalStyle = '<style>input::placeholder{font-style:italic}</style>';
 
@@ -71,7 +71,6 @@
 	let validated = false;
 	let changed = false;
 	let patch = [];
-	let statsPatch = [];
 	$: changed = JSON.stringify(character) === JSON.stringify(characterBase);
 	let errorOpen = false;
 	let errors = [];
@@ -79,58 +78,41 @@
 	let summary = [];
 	const summaryToggle = () => {
 		if (summaryOpen) return (summaryOpen = false);
+		const autoPatch = createPatch(characterBase, character);
 		errors = [];
-		patch = [];
-		statsPatch = [];
 		summary = [];
-		overviewFields.forEach(([field, name, required]) => {
-			if (['completedClasses'].indexOf(field) !== -1) return;
-			let newVal = character[field];
-			if (typeof newVal === 'string') newVal = newVal.trim();
-			const oldVal = characterBase[field];
-
-			if (newVal === '') {
-				if (required) return errors.push(name);
-				if (oldVal === null) return;
-				patch.push({ op: 'remove', path: `/${field}` });
-				summary.push([name, oldVal, newVal]);
-				return;
+		patch = [];
+		autoPatch.forEach(({ op, path, value }) => {
+			const pathStr = String(path);
+			const pathItems = pathStr.match(/[^\/]+/g);
+			const stat = pathItems[pathItems.length - 1];
+			let oldVal = characterBase;
+			pathItems.forEach((x) => (oldVal = oldVal[x]));
+			value = value.trim();
+			
+			if (stat === 'completedClasses') {
+				return getClassesPatch();
 			}
-			if (oldVal == newVal) return;
-			patch.push({ op: 'replace', path: `/${field}`, value: newVal });
-			summary.push([name, oldVal, newVal]);
+			if (oldVal == value) return;
+			if (value === '' && (oldVal === undefined || oldVal === null)) return;
+			if (op === 'replace' && value === '') {
+				patch.push({ op: 'remove', path });
+				summary.push([stat, oldVal, '<Blank>']);
+					return;
+			}
+
+			patch.push({ op, path, value });
+			summary.push([stat, oldVal, value]);
 		});
-		getClassesPatch();
-		characteristics.forEach(({ stat, name }) => {
-			let newVal = Number(character.stats[stat]);
-			newVal = Number(newVal);
-			if (isNaN(newVal) || newVal < 1) return errors.push(stat);
-
-			const oldVal = Number(characterBase.stats[stat]);
-
-			if (oldVal == newVal) return;
-			statsPatch.push({ op: 'replace', path: `/${stat}`, value: newVal });
-			summary.push([name, oldVal, newVal]);
-		});
-		skills.forEach(({ stat, name }) => {
-			let newVal = Number(character.stats[stat]);
-			newVal = Number(newVal);
-			if (isNaN(newVal) || newVal < 0) return errors.push(stat);
-
-			const oldVal = Number(characterBase.stats[stat]);
-
-			if (oldVal == newVal) return;
-			statsPatch.push({ op: 'replace', path: `/${stat}`, value: newVal });
-			summary.push([name, oldVal, newVal]);
-		});
+		console.log(patch);
 		if (errors.length > 0) return (errorOpen = true);
-		if (patch.length === 0 && statsPatch.length === 0) return;
+		if (patch.length === 0) return;
 		summaryOpen = true;
 	};
 
 	const getClassesPatch = () => {
 		const oldClasses =
-			characterBase.completedClasses !== '' ? characterBase.completedClasses.split(/, ?/) : '';
+			characterBase.completedClasses !== '' ? characterBase.completedClasses.split(/, ?/) : [];
 		const midClasses = character.completedClasses.split(/, ?/);
 		if (JSON.stringify(oldClasses) === JSON.stringify(midClasses)) return;
 		const newClasses = [];
@@ -146,168 +128,161 @@
 		if (classesPatch.length === 0) return;
 
 		patch.push(...classesPatch);
-		summary.push(['Completed Classes', oldClasses ? oldClasses : 'None', midClasses]);
+		summary.push(['Completed Classes', oldClasses.length > 0 ? oldClasses : 'None', midClasses]);
 	};
 
 	const submit = async (e) => {
-		if (patch.length === 0 && statsPatch.length === 0) return;
-		const statuses = [];
-		const reses = [];
-		if (patch.length > 0) {
-			const res = await fetch(`${baseUrl}api/characters/${characterBase.id}`, {
-				method: 'PATCH',
-				body: JSON.stringify(patch),
-				headers: {
-					Authorization: 'Bearer ' + window.localStorage.getItem('accessToken'),
-					'Content-Type': 'application/json-patch+json'
-				}
-			});
-			reses.push(res);
-			statuses.push(res.status);
-		}
-		if (statsPatch.length > 0) {
-			const res = await fetch(`${baseUrl}api/characters/${characterBase.id}/stats`, {
-				method: 'PATCH',
-				body: JSON.stringify(statsPatch),
-				headers: {
-					Authorization: 'Bearer ' + window.localStorage.getItem('accessToken'),
-					'Content-Type': 'application/json-patch+json'
-				}
-			});
-			reses.push(res);
-			statuses.push(res.status);
-		}
-
-		if (statuses.every((val) => val === 200)) {
-			window.location.replace(`/characters/${characterBase.id}`);
-		} else {
-			console.log(reses);
-		}
+		if (patch.length === 0) return;
+		const res = await fetch(`${baseUrl}api/characters/${characterBase.id}`, {
+			method: 'PATCH',
+			body: JSON.stringify(patch),
+			headers: {
+				Authorization: 'Bearer ' + window.localStorage.getItem('accessToken'),
+				'Content-Type': 'application/json-patch+json'
+			}
+		});
+		if (res.status === 200) window.location.replace(`/characters/${characterBase.id}`);
+		else console.log(res);
 	};
 </script>
 
-<Modal
-	isOpen={errorOpen}
-	toggle={errorToggle}
-	header="The following items have errors"
-	body
-	scrollable
->
-	{#each errors as error}
-		{error},&nbsp;
-	{/each}
-</Modal>
-<Modal isOpen={summaryOpen} toggle={summaryToggle} header="Confirm Submission?" body scrollable>
-	<ul id="summary-list">
-		{#each summary as [name, oldVal, newVal]}
-			<li>
-				<strong>{name}: </strong>{oldVal}
-				<Icon name="arrow-right" />
-				{#if newVal && newVal !== ''}
-					{newVal}
-				{:else}
-					<i>&lt;blank&gt;</i>
-				{/if}
-			</li>
+{#if character.stats}
+	<Modal
+		isOpen={errorOpen}
+		toggle={errorToggle}
+		header="The following items have errors"
+		body
+		scrollable
+	>
+		{#each errors as error}
+			{error},&nbsp;
 		{/each}
-	</ul>
-	<ModalFooter>
-		<Button on:click={summaryToggle}>Cancel</Button>
-		<Button on:click={submit} color="success">Submit Changes</Button>
-	</ModalFooter>
-</Modal>
+	</Modal>
+	<Modal isOpen={summaryOpen} toggle={summaryToggle} header="Confirm Submission?" body scrollable>
+		<ul id="summary-list">
+			{#each summary as [name, oldVal, newVal]}
+				<li>
+					<strong>{name}: </strong>{oldVal}
+					<Icon name="arrow-right" />
+					{#if newVal && newVal !== ''}
+						{newVal}
+					{:else}
+						<i>&lt;blank&gt;</i>
+					{/if}
+				</li>
+			{/each}
+		</ul>
+		<ModalFooter>
+			<Button on:click={summaryToggle}>Cancel</Button>
+			<Button on:click={submit} color="success">Submit Changes</Button>
+		</ModalFooter>
+	</Modal>
 
-<Form {validated} on:submit={summaryToggle}>
-	<Card>
-		<CardHeader>
-			<CardTitle>
-				{characterBase.name}
-			</CardTitle>
-			{#if characterBase.age}
-				<CardText>{characterBase.age} years old</CardText>
-			{/if}
-		</CardHeader>
-		<CardBody>
-			<TabContent on:tab={(e) => (tab = e.detail)}>
-				<TabPane tabId="overview" tab="Overview" active>
-					<ul id="overview-list">
-						{#each overviewFields as [field, name, required]}
-							<li class="margin">
-								<InputGroup>
-									<InputGroupText>
-										<strong>{name}: </strong>
-									</InputGroupText>
-									<Input
-										id={field}
-										placeholder={characterBase[field] || '<blank>'}
-										bind:value={character[field]}
-										{required}
-									/>
-									<Button on:click={reset} data-field={field}>
-										<Icon name="arrow-counterclockwise" />
-									</Button>
-								</InputGroup>
-							</li>
-						{/each}
-					</ul>
-					<Button href="/characters/{characterBase.id}">Cancel</Button>
-					<Button type="submit" color="success" disabled={changed}>Submit</Button><br />
-					<small>*Separate with commas</small>
-				</TabPane>
-				<TabPane tabId="stats" tab="Stats">
-					<h4>Characteristics</h4>
-					<div id="characteristicsGrid">
-						{#each characteristics as { stat, name }}
-							<div>
-								<h5>{name}</h5>
-								<InputGroup>
-									<Input
-										style="text-align:center"
-										placeholder={characterBase.stats[stat]}
-										bind:value={character.stats[stat]}
-										required
-									/>
-									<Button on:click={resetStat} data-field={stat} style="border-top-right-radius:0">
-										<Icon name="arrow-counterclockwise" />
-									</Button>
-								</InputGroup>
-							</div>
-						{/each}
-					</div>
-					<br />
-					<h4>Skills</h4>
-					<div id="skillsGrid">
-						{#each skills as { stat, name, advanced }}
-							<div>
-								<h5>
-									{name}{#if advanced}*{/if}
-								</h5>
-								<InputGroup>
-									<Input
-										style="text-align:center"
-										placeholder={characterBase.stats[stat]}
-										bind:value={character.stats[stat]}
-										required
-									/>
-									<Button on:click={resetStat} data-field={stat} style="border-top-right-radius:0">
-										<Icon name="arrow-counterclockwise" />
-									</Button>
-								</InputGroup>
-							</div>
-						{/each}
-					</div>
-					<br />
-					<Button href="/characters/{characterBase.id}">Cancel</Button>
-					<Button type="submit" color="success" disabled={changed}>Submit</Button>
-				</TabPane>
-			</TabContent>
-		</CardBody>
-	</Card>
-</Form>
+	<Form {validated} on:submit={summaryToggle}>
+		<Card>
+			<CardHeader>
+				<CardTitle>
+					{characterBase.name}
+				</CardTitle>
+				{#if characterBase.age}
+					<CardText>{characterBase.age} years old</CardText>
+				{/if}
+			</CardHeader>
+			<CardBody>
+				<TabContent on:tab={(e) => (tab = e.detail)}>
+					<TabPane tabId="overview" tab="Overview" active>
+						<ul id="overview-list">
+							{#each overviewFields as [field, name, required, type]}
+								<li class="margin">
+									<InputGroup>
+										<InputGroupText>
+											<strong>{name}: </strong>
+										</InputGroupText>
+										<Input
+											id={field}
+											placeholder={characterBase[field] || '<blank>'}
+											bind:value={character[field]}
+											{required}
+											pattern={type === 'number' ? null : '[\\S\\s]*\\S[\\S\\s]*'}
+										/>
+										<Button on:click={reset} data-field={field}>
+											<Icon name="arrow-counterclockwise" />
+										</Button>
+									</InputGroup>
+								</li>
+							{/each}
+						</ul>
+						<Button href="/characters/{characterBase.id}">Cancel</Button>
+						<Button type="submit" color="success" disabled={changed}>Submit</Button><br />
+						<small>*Separate with commas</small>
+					</TabPane>
+					<TabPane tabId="stats" tab="Stats">
+						<h4>Characteristics</h4>
+						<div id="characteristicsGrid">
+							{#each characteristics as { stat, name }}
+								<div>
+									<h5>{name}</h5>
+									<InputGroup>
+										<Input
+											style="text-align:center"
+											placeholder={characterBase.stats[stat]}
+											bind:value={character.stats[stat]}
+											required
+											type="number"
+										/>
+										<Button
+											on:click={resetStat}
+											data-field={stat}
+											style="border-top-right-radius:0"
+										>
+											<Icon name="arrow-counterclockwise" />
+										</Button>
+									</InputGroup>
+								</div>
+							{/each}
+						</div>
+						<br />
+						<h4>Skills</h4>
+						<div id="skillsGrid">
+							{#each skills as { stat, name, advanced, type }}
+								<div>
+									<h5>
+										{name}{#if advanced}*{/if}
+									</h5>
+									<InputGroup>
+										<Input
+											style="text-align:center"
+											placeholder={characterBase.stats[`${type}Skills`][stat]}
+											bind:value={character.stats[`${type}Skills`][stat]}
+											required
+											type="number"
+										/>
+										<Button
+											on:click={resetStat}
+											data-field={stat}
+											style="border-top-right-radius:0"
+										>
+											<Icon name="arrow-counterclockwise" />
+										</Button>
+									</InputGroup>
+								</div>
+							{/each}
+						</div>
+						<br />
+						<Button href="/characters/{characterBase.id}">Cancel</Button>
+						<Button type="submit" color="success" disabled={changed}>Submit</Button>
+					</TabPane>
+				</TabContent>
+			</CardBody>
+		</Card>
+	</Form>
 
-<Styles />
+	<Styles />
 
-{@html globalStyle}
+	{@html globalStyle}
+{:else}
+	<h1>Loading...</h1>
+{/if}
 
 <style>
 	#overview-list {
