@@ -5,38 +5,45 @@
 	import { Styles, Icon, Modal, ModalFooter } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
 	import { baseUrl, characteristics, skills } from '$lib/stores.js';
-	import { type Character } from '$lib/types';
+	import { Character } from '$lib/characterTypes';
 	import { page } from '$app/stores';
-	import { shallowCopyObj as copy } from '$lib/shallowCopyObj';
 	import { createPatch } from 'rfc6902';
+	import type { Operation } from 'rfc6902/diff.d.ts';
 	let tab = 'overview';
 	let character: Character;
 	let characterBase: Character;
-	let overviewFields = [
-		['name', 'Name', true, 'string'],
-		['age', 'Age', false, 'number'],
-		['race', 'Race', true, 'string'],
-		['exaltation', 'Exaltation', true, 'string'],
-		['alignment', 'Alignment', false, 'string'],
-		['currentClass', 'Class', true, 'string'],
-		['completedClasses', 'Completed Classes*', false, 'array']
+	type overviewField = {
+		field: string,
+		name: string,
+		required: boolean,
+		type: string
+	}
+	let overviewFields: overviewField[] = [
+		{field: 'name', name: 'Name', required: true, type: 'string'},
+		{field: 'age', name: 'Age', required: false, type: 'number'},
+		{field: 'race', name: 'Race', required: true, type: 'string'},
+		{field: 'exaltation', name: 'Exaltation', required: true, type: 'string'},
+		{field: 'alignment', name: 'Alignment', required: false, type: 'string'},
+		{field: 'currentClass', name: 'Class', required: true, type: 'string'},
+		{field: 'completedClasses', name: 'Completed Classes*', required: false, type: 'array'}
 	];
 	const globalStyle = '<style>input::placeholder{font-style:italic}</style>';
 
 	const reset = (e: Event) => {
 		e.preventDefault();
-		let target = e.target;
-		if(!target) return;
-		if (target.nodeName === 'I') target = target.parentElement;
-		const field = target.dataset.field;
+		let target: HTMLElement | null = <HTMLElement>e.target;
+		if (target?.nodeName === 'I') target = target?.parentElement;
+		const field = target?.dataset.field;
+		if (!field) return;
 		character[field] = characterBase[field];
 	};
 
-	const resetStat = (e) => {
+	const resetStat = (e: Event) => {
 		e.preventDefault();
-		let target = e.target;
+		let target: HTMLElement | null = <HTMLElement>e.target;
 		if (target.nodeName === 'I') target = target.parentElement;
-		const field = target.dataset.field;
+		const field = target?.dataset.field;
+		if (!field) return;
 		character.stats[field] = characterBase.stats[field];
 	};
 
@@ -59,55 +66,47 @@
 		console.log(char);
 		console.log(char.completedClasses);
 
-		characterBase = char;
-		characterBase.completedClasses =
-			characterBase.completedClasses && characterBase.completedClasses.length > 0
-				? characterBase.completedClasses.reduce((prev, cur) => {
-						if (prev) prev += ', ' + cur;
-					})
-				: '';
+		characterBase = new Character(char);
 
-		character = copy(characterBase);
-
-		console.log(character);
+		character = new Character(char);
 	});
 
 	let summaryOpen = false;
 	let validated = false;
 	let changed = false;
-	let patch = [];
+	let patch: Operation[] = [];
 	$: changed = JSON.stringify(character) === JSON.stringify(characterBase);
 	let errorOpen = false;
-	let errors = [];
+	let errors: string[] = [];
 	const errorToggle = () => (errorOpen = !errorOpen);
-	let summary = [];
+	let summary: string[][] = [];
 	const summaryToggle = () => {
 		if (summaryOpen) return (summaryOpen = false);
 		const autoPatch = createPatch(characterBase, character);
 		errors = [];
 		summary = [];
 		patch = [];
-		autoPatch.forEach(({ op, path, value }) => {
-			const pathStr = String(path);
-			const pathItems = pathStr.match(/[^\/]+/g);
-			const stat = pathItems[pathItems.length - 1];
-			let oldVal = characterBase;
-			pathItems.forEach((x) => (oldVal = oldVal[x]));
-			value = value.trim();
-
-			if (stat === 'completedClasses') {
-				return getClassesPatch();
-			}
-			if (oldVal == value) return;
-			if (value === '' && (oldVal === undefined || oldVal === null)) return;
-			if (op === 'replace' && value === '') {
-				patch.push({ op: 'remove', path });
-				summary.push([stat, oldVal, '<Blank>']);
-				return;
-			}
-
-			patch.push({ op, path, value });
-			summary.push([stat, oldVal, value]);
+		autoPatch.forEach((item) => {
+			// const pathItems = item.path.match(/[^\/]+/g);
+			// if(!pathItems) return;
+			// const stat = pathItems[pathItems.length - 1];
+			// let oldVal = characterBase;
+			// pathItems.forEach((x) => (oldVal = oldVal[x]));
+			// if (stat === 'completedClasses') {
+			// 	return getClassesPatch();
+			// }
+			// if("value" in item) {
+			// 	item.value = item.value.trim();
+			// 	if (oldVal == item.value) return;
+			// }
+			// if (value === '' && (oldVal === undefined || oldVal === null)) return;
+			// if (op === 'replace' && value === '') {
+			// 	patch.push({ op: 'remove', path });
+			// 	summary.push([stat, oldVal, '<Blank>']);
+			// 	return;
+			// }
+			// patch.push({ op, path, value });
+			// summary.push([stat, oldVal, value]);
 		});
 		console.log(patch);
 		if (errors.length > 0) return (errorOpen = true);
@@ -116,16 +115,10 @@
 	};
 
 	const getClassesPatch = () => {
-		const oldClasses =
-			characterBase.completedClasses !== '' ? characterBase.completedClasses.split(/, ?/) : [];
-		const midClasses = character.completedClasses.split(/, ?/);
-		if (JSON.stringify(oldClasses) === JSON.stringify(midClasses)) return;
-		const newClasses = [];
-		midClasses.forEach((val) => {
-			val = val.trim();
-			if (val === '') return;
-			newClasses.push(val);
-		});
+		const oldClasses = characterBase.completedClasses.raw;
+		character.calculateCompletedClasses();
+		const newClasses = character.completedClasses.raw;
+		if (JSON.stringify(oldClasses) === JSON.stringify(newClasses)) return;
 		const classesPatch = createPatch(
 			{ completedClasses: oldClasses },
 			{ completedClasses: newClasses }
@@ -133,10 +126,14 @@
 		if (classesPatch.length === 0) return;
 
 		patch.push(...classesPatch);
-		summary.push(['Completed Classes', oldClasses.length > 0 ? oldClasses : 'None', midClasses]);
+		summary.push([
+			'Completed Classes',
+			oldClasses.length > 0 ? oldClasses.join(', ') : 'None',
+			newClasses.join(', ')
+		]);
 	};
 
-	const submit = async (e) => {
+	const submit = async (e: Event) => {
 		if (patch.length === 0) return;
 		const res = await fetch(`${baseUrl}api/characters/${characterBase.id}`, {
 			method: 'PATCH',
@@ -194,10 +191,10 @@
 				{/if}
 			</CardHeader>
 			<CardBody>
-				<TabContent on:tab={(e) => (tab = e.detail)}>
+				<TabContent on:tab={(e) => (tab = e.detail.toString())}>
 					<TabPane tabId="overview" tab="Overview" active>
 						<ul id="overview-list">
-							{#each overviewFields as [field, name, required, type]}
+							{#each overviewFields as {field, name, required, type}}
 								<li class="margin">
 									<InputGroup>
 										<InputGroupText>

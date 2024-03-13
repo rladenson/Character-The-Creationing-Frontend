@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { Card, CardBody, CardHeader, CardText, CardTitle } from '@sveltestrap/sveltestrap';
 	import { TabContent, TabPane } from '@sveltestrap/sveltestrap';
 	import { Modal, ModalFooter } from '@sveltestrap/sveltestrap';
@@ -6,20 +6,19 @@
 	import { baseUrl, characteristics, skills } from '$lib/stores.js';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { Character } from '$lib/characterTypes';
 	let tab = 'overview';
 
-	let character = {};
+	let character: Character;
 	let owner = false;
 
 	let open = false;
 	let status = 'loading';
 
 	onMount(async () => {
-		const token = window.localStorage.getItem("accessToken");
+		const token = window.localStorage.getItem('accessToken');
 		const res = await fetch(baseUrl + `api/characters/${$page.params.slug}`, {
-			headers: {
-				Authorization: token ? ('Bearer ' + token) : null,
-			}
+			headers: new Headers(token ? [['Authorization', `Bearer ${token}`]] : [])
 		});
 		if (res.status !== 200) {
 			window.location.replace('/');
@@ -27,7 +26,7 @@
 
 		const json = await res.json();
 
-		character = json.character;
+		character = new Character(json.character);
 		character.derived = json.derivedStats;
 
 		owner = json.userId == window.localStorage.getItem('id');
@@ -38,7 +37,7 @@
 	const toggleDeletePrompt = () => {
 		open = !open;
 	};
-	const deleteCharacter = async (e) => {
+	const deleteCharacter = async (e: Event) => {
 		e.preventDefault();
 		status = 'deleting';
 		toggleDeletePrompt();
@@ -76,7 +75,7 @@
 			{/if}
 		</CardHeader>
 		<CardBody>
-			<TabContent on:tab={(e) => (tab = e.detail)}>
+			<TabContent on:tab={(e) => (tab = e.detail.toString())}>
 				<TabPane tabId="overview" tab="Overview" active>
 					<ul class="list">
 						<li><strong>Race: </strong>{character.race}<br /></li>
@@ -136,7 +135,7 @@
 		</CardBody>
 	</Card>
 {:else if status === 'loading'}
-<h1>Loading...</h1>
+	<h1>Loading...</h1>
 {:else if status === 'deleting'}
 	<Alert color="info">
 		<Spinner color="info" />&nbsp;&nbsp;

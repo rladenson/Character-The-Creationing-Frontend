@@ -6,7 +6,7 @@
 		InputGroupText,
 		FormCheck
 	} from '@sveltestrap/sveltestrap';
-	import { type Character } from "$lib/types";
+	import { type Character } from "$lib/characterTypes";
 	export let character: Character;
 	const width = '40em';
 </script>
