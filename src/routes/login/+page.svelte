@@ -1,10 +1,12 @@
-<script>
+<script lang="ts">
 	import { baseUrl } from '$lib/stores.js';
 	import { browser } from '$app/environment';
-	const login = async (e) => {
+	const login = async (e: Event) => {
 		e.preventDefault();
 		if (browser) {
-			const data = new FormData(e.target);
+			const form: HTMLFormElement | null = document.querySelector('form#signin-form');
+			if (!form) return;
+			const data = new FormData(form);
 
 			const dataObj = {
 				username: data.get('username'),
@@ -20,7 +22,7 @@
 			});
 
 			if (res.status === 200) {
-				const json = await res.json();
+				const json: object = await res.json();
 				for (const [key, val] of Object.entries(json)) {
 					window.localStorage.setItem(key, val);
 				}
@@ -31,7 +33,7 @@
 </script>
 
 <h1>Login</h1>
-<form method="POST" on:submit={login}>
+<form method="POST" on:submit={login} id="signin-form">
 	<label>Username:<input name="username" /></label><br />
 	<label>Password:<input name="password" type="password" /></label><br />
 	<input type="submit" value="Login" />

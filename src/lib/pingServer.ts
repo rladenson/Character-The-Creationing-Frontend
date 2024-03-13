@@ -1,7 +1,7 @@
 import { baseUrl } from './stores';
 import { browser } from '$app/environment';
 
-export async function pingServer(token) {
+export async function pingServer(token: string | null) {
 	if (browser) {
 		if (token) {
 			const res = await fetch(baseUrl + 'greeting', {

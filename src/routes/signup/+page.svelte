@@ -1,12 +1,14 @@
-<script>
+<script lang="ts">
 	import { baseUrl } from '$lib/stores.js';
 	import { browser } from '$app/environment';
 
-	const signup = async (e) => {
+	const signup = async (e: Event) => {
 		e.preventDefault();
 
 		if (browser) {
-			const data = new FormData(e.target);
+			const form: HTMLFormElement | null = document.querySelector('form#signup-form');
+			if (!form) return;
+			const data = new FormData(form);
 
 			const dataObj = {
 				username: data.get('username'),
@@ -29,7 +31,7 @@
 </script>
 
 <h1>Sign Up</h1>
-<form method="POST" on:submit={signup}>
+<form method="POST" on:submit={signup} id="signup-form">
 	<label>Username:<input name="username" /></label><br />
 	<label>Password:<input name="password" type="password" /></label><br />
 	<input type="submit" value="Sign Up" />
