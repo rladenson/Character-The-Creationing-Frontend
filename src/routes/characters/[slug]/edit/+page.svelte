@@ -219,8 +219,8 @@
 									<InputGroup>
 										<Input
 											style="text-align:center"
-											placeholder={characterBase.stats[stat]}
-											bind:value={character.stats[stat]}
+											placeholder={characterBase.stats[stat].val}
+											bind:value={character.stats[stat].val}
 											required
 											type="number"
 										/>
@@ -238,7 +238,7 @@
 						<br />
 						<h4>Skills</h4>
 						<div id="skillsGrid">
-							{#each skills as { stat, name, advanced, type }}
+							{#each skills as { stat, name, advanced, type }, i}
 								<div>
 									<h5>
 										{name}{#if advanced}*{/if}
@@ -246,8 +246,8 @@
 									<InputGroup>
 										<Input
 											style="text-align:center"
-											placeholder={characterBase.stats[`${type}Skills`][stat]}
-											bind:value={character.stats[`${type}Skills`][stat]}
+											placeholder={characterBase.stats[`${type}Skills`][i % 9].val}
+											bind:value={character.stats[`${type}Skills`][i % 9].val}
 											required
 											type="number"
 										/>
