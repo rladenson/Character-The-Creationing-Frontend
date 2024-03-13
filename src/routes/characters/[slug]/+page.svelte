@@ -9,7 +9,7 @@
 	import { Character } from '$lib/characterTypes';
 	let tab = 'overview';
 
-	let character: Character;
+	let character: Character = new Character();
 	let owner = false;
 
 	let open = false;
@@ -26,12 +26,11 @@
 
 		const json = await res.json();
 
-		character = new Character(json.character);
-		character.derived = json.derivedStats;
+		character = new Character(json.character, json.derivedStats);
 
 		owner = json.userId == window.localStorage.getItem('id');
 
-		status = '';
+		status = 'loaded';
 	});
 
 	const toggleDeletePrompt = () => {
@@ -64,7 +63,7 @@
 	</ModalFooter>
 </Modal>
 
-{#if status === ''}
+{#if status === 'loaded'}
 	<Card>
 		<CardHeader>
 			<CardTitle>
@@ -97,31 +96,31 @@
 				</TabPane>
 				<TabPane tabId="stats" tab="Stats">
 					<ul class="list" id="derived">
-						<li><strong>Static Defense: </strong>{character.derived.staticDefense}</li>
-						<li><strong>Max Hit Points: </strong>{character.derived.maxHP}</li>
-						<li><strong>Mental Defense: </strong>{character.derived.mentalDefense}</li>
-						<li><strong>Resilience: </strong>{character.derived.resilience}</li>
-						<li><strong>Resolve: </strong>{character.derived.resolve}</li>
-						<li><strong>Speed: </strong>{character.derived.speed}</li>
-						<li><strong>Initiative: </strong>{character.derived.initiative}</li>
+						<li><strong>Static Defense: </strong>{character.derived?.staticDefense}</li>
+						<li><strong>Max Hit Points: </strong>{character.derived?.maxHP}</li>
+						<li><strong>Mental Defense: </strong>{character.derived?.mentalDefense}</li>
+						<li><strong>Resilience: </strong>{character.derived?.resilience}</li>
+						<li><strong>Resolve: </strong>{character.derived?.resolve}</li>
+						<li><strong>Speed: </strong>{character.derived?.speed}</li>
+						<li><strong>Initiative: </strong>{character.derived?.initiative}</li>
 					</ul>
 					<h3>Characteristics</h3>
 					<div id="characteristics">
 						{#each characteristics as char}
 							<div>
 								<h5>{char.abbrev}</h5>
-								{character.stats[char.stat]}
+								{character.stats[char.stat].val}
 							</div>
 						{/each}
 					</div>
 					<h3>Skills</h3>
 					<div id="skills">
-						{#each skills as { stat, name, advanced, type }}
+						{#each skills as { stat, name, advanced, type }, i}
 							<div>
 								<h5>
 									{name}{#if advanced}*{/if}
 								</h5>
-								{character.stats[`${type}Skills`][stat]}
+								{character.stats[`${type}Skills`][i % 9].val}
 							</div>
 						{/each}
 					</div>

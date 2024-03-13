@@ -11,13 +11,12 @@ export class Character {
 	power: string;
 	alignment: string | null;
 	currentClass: string;
-	completedClasses: {
-		raw: string[];
-		joined: string;
-	};
+	completedClassesArr: string[];
+	completedClasses: string;
 	stats: CharacterStats;
+	derived: Derived | undefined;
 
-	constructor(char?: CharacterInner) {
+	constructor(char?: CharacterInner, derived?: Derived) {
 		this.id = char?.id ?? '';
 		this.name = char?.name ?? '';
 		this.age = char?.age ?? null;
@@ -28,18 +27,17 @@ export class Character {
 		this.power = char?.power ?? '';
 		this.alignment = char?.alignment ?? '';
 		this.currentClass = char?.currentClass ?? '';
-		this.completedClasses = {
-			raw: char?.completedClasses ?? [],
-			joined: char?.completedClasses.join(', ') ?? ''
-		};
+		this.completedClassesArr = char?.completedClasses ?? [];
+		this.completedClasses = char?.completedClasses.join(', ') ?? '';
 		this.stats = new CharacterStats(char);
+		this.derived = derived;
 	}
 
 	calculateCompletedClasses() {
-		this.completedClasses.raw = [];
-		const arr = this.completedClasses.joined.split(/, ?/);
+		this.completedClassesArr = [];
+		const arr = this.completedClasses.split(/, ?/);
 		arr.forEach((item) => {
-			if (item.trim() !== '') this.completedClasses.raw.push(item);
+			if (item.trim() !== '') this.completedClassesArr.push(item);
 		});
 	}
 }
@@ -438,6 +436,23 @@ type Skill = {
 	val: number;
 };
 
+type Characteristic = {
+	stat: string;
+	name: string;
+	abbrev: string;
+	val: number;
+};
+
+type Derived = {
+	staticDefense: number;
+	maxHP: number;
+	mentalDefense: number;
+	resilience: number;
+	resolve: number;
+	speed: number;
+	initiative: number;
+};
+
 type CharacterInner = {
 	id: string;
 
@@ -501,11 +516,4 @@ type CharacterInner = {
 			scrutiny: number;
 		};
 	};
-};
-
-type Characteristic = {
-	stat: string;
-	name: string;
-	abbrev: string;
-	val: number;
 };

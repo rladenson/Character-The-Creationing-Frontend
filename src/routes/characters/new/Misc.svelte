@@ -12,7 +12,7 @@
 
 	const toggleExtraLevels = (e: Event) => {
 		if (!(<HTMLInputElement>e.target).checked) {
-			character.completedClasses.joined = "";
+			character.completedClasses = '';
 			character.level = 1;
 		}
 	};

@@ -10,8 +10,8 @@
 	import { createPatch } from 'rfc6902';
 	import type { Operation } from 'rfc6902/diff.d.ts';
 	let tab = 'overview';
-	let character: Character;
-	let characterBase: Character;
+	let character: Character = new Character();
+	let characterBase: Character = character;
 	type overviewField = [field: string, name: string, required: boolean, type: string];
 	let overviewFields: overviewField[] = [
 		['name', 'Name', true, 'string'],
@@ -57,9 +57,6 @@
 
 		if (json.userId != window.localStorage.getItem('id'))
 			window.location.replace(`/characters/${char.id}`);
-
-		console.log(char);
-		console.log(char.completedClasses);
 
 		characterBase = new Character(char);
 
@@ -110,9 +107,9 @@
 	};
 
 	const getClassesPatch = () => {
-		const oldClasses = characterBase.completedClasses.raw;
+		const oldClasses = characterBase.completedClassesArr;
 		character.calculateCompletedClasses();
-		const newClasses = character.completedClasses.raw;
+		const newClasses = character.completedClassesArr;
 		if (JSON.stringify(oldClasses) === JSON.stringify(newClasses)) return;
 		const classesPatch = createPatch(
 			{ completedClasses: oldClasses },
