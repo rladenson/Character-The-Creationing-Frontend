@@ -12,20 +12,15 @@
 	let tab = 'overview';
 	let character: Character;
 	let characterBase: Character;
-	type overviewField = {
-		field: string,
-		name: string,
-		required: boolean,
-		type: string
-	}
+	type overviewField = [field: string, name: string, required: boolean, type: string];
 	let overviewFields: overviewField[] = [
-		{field: 'name', name: 'Name', required: true, type: 'string'},
-		{field: 'age', name: 'Age', required: false, type: 'number'},
-		{field: 'race', name: 'Race', required: true, type: 'string'},
-		{field: 'exaltation', name: 'Exaltation', required: true, type: 'string'},
-		{field: 'alignment', name: 'Alignment', required: false, type: 'string'},
-		{field: 'currentClass', name: 'Class', required: true, type: 'string'},
-		{field: 'completedClasses', name: 'Completed Classes*', required: false, type: 'array'}
+		['name', 'Name', true, 'string'],
+		['age', 'Age', false, 'number'],
+		['race', 'Race', true, 'string'],
+		['exaltation', 'Exaltation', true, 'string'],
+		['alignment', 'Alignment', false, 'string'],
+		['currentClass', 'Class', true, 'string'],
+		['completedClasses', 'Completed Classes*', false, 'array']
 	];
 	const globalStyle = '<style>input::placeholder{font-style:italic}</style>';
 
@@ -194,7 +189,7 @@
 				<TabContent on:tab={(e) => (tab = e.detail.toString())}>
 					<TabPane tabId="overview" tab="Overview" active>
 						<ul id="overview-list">
-							{#each overviewFields as {field, name, required, type}}
+							{#each overviewFields as [field, name, required, type]}
 								<li class="margin">
 									<InputGroup>
 										<InputGroupText>
