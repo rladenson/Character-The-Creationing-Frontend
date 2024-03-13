@@ -1,13 +1,21 @@
-<script>
+<script lang="ts">
 	import { Nav, NavItem, NavLink, Navbar, NavbarBrand } from '@sveltestrap/sveltestrap';
 	import { page } from '$app/stores';
 
-	const logout = (e) => {
+	const logout = (e: Event) => {
 		e.preventDefault();
 		localStorage.clear();
 		window.location.replace('/');
 	};
 </script>
+
+<svelte:head>
+	<title>Petal Ladenson</title>
+	<link
+		rel="stylesheet"
+		href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+	/>
+</svelte:head>
 
 <Navbar color="dark" theme="dark">
 	<NavbarBrand href="/">Home</NavbarBrand>
