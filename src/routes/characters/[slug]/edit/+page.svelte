@@ -1,16 +1,17 @@
-<script>
+<script lang="ts">
 	import { Card, CardHeader, CardTitle, CardBody, CardText } from '@sveltestrap/sveltestrap';
 	import { TabContent, TabPane } from '@sveltestrap/sveltestrap';
 	import { Button, InputGroup, InputGroupText, Input, Form } from '@sveltestrap/sveltestrap';
 	import { Styles, Icon, Modal, ModalFooter } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
 	import { baseUrl, characteristics, skills } from '$lib/stores.js';
+	import { type Character } from '$lib/types';
 	import { page } from '$app/stores';
-	import { shallowCopyObj as copy } from '$lib/shallowCopyObj.js';
+	import { shallowCopyObj as copy } from '$lib/shallowCopyObj';
 	import { createPatch } from 'rfc6902';
 	let tab = 'overview';
-	let character = {};
-	let characterBase = {};
+	let character: Character;
+	let characterBase: Character;
 	let overviewFields = [
 		['name', 'Name', true, 'string'],
 		['age', 'Age', false, 'number'],
@@ -22,9 +23,10 @@
 	];
 	const globalStyle = '<style>input::placeholder{font-style:italic}</style>';
 
-	const reset = (e) => {
+	const reset = (e: Event) => {
 		e.preventDefault();
 		let target = e.target;
+		if(!target) return;
 		if (target.nodeName === 'I') target = target.parentElement;
 		const field = target.dataset.field;
 		character[field] = characterBase[field];
@@ -53,6 +55,9 @@
 
 		if (json.userId != window.localStorage.getItem('id'))
 			window.location.replace(`/characters/${char.id}`);
+
+		console.log(char);
+		console.log(char.completedClasses);
 
 		characterBase = char;
 		characterBase.completedClasses =
@@ -89,7 +94,7 @@
 			let oldVal = characterBase;
 			pathItems.forEach((x) => (oldVal = oldVal[x]));
 			value = value.trim();
-			
+
 			if (stat === 'completedClasses') {
 				return getClassesPatch();
 			}
@@ -98,7 +103,7 @@
 			if (op === 'replace' && value === '') {
 				patch.push({ op: 'remove', path });
 				summary.push([stat, oldVal, '<Blank>']);
-					return;
+				return;
 			}
 
 			patch.push({ op, path, value });

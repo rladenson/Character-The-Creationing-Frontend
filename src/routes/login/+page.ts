@@ -1,4 +1,4 @@
-import { pingServer } from '$lib/pingServer.js';
+import { pingServer } from '$lib/pingServer';
 import { redirect } from '@sveltejs/kit';
 import { browser } from '$app/environment';
 
