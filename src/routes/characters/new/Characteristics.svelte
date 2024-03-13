@@ -1,10 +1,10 @@
-<script>
+<script lang="ts">
 	import { Input, FormGroup, Table, Button, Alert } from '@sveltestrap/sveltestrap';
 	import { browser } from '$app/environment';
 	export let character, record;
 	let characteristics = character.characteristics;
 
-	const checkTotal = (stat, statMax, statName) => {
+	const checkTotal = (stat: string, statMax: number, statName: string) => {
 		switch (statName) {
 			case 'mental':
 				mental = updateCharacteristic(
@@ -32,11 +32,11 @@
 				break;
 		}
 	};
-	const updateCharacteristic = (a, b, c, statMax) => {
+	const updateCharacteristic = (a: string, b: string, c: string, statMax: number) => {
 		return Number(a || 0) + Number(b || 0) + Number(c || 0) + ' out of ' + statMax;
 	};
 
-	let mental = 3;
+	let mental = "3";
 	let mentalMax = 9;
 	$: mental = updateCharacteristic(
 		characteristics.intelligence,
@@ -46,7 +46,7 @@
 	);
 	$: checkTotal(mental, mentalMax, 'mental');
 
-	let physical = 3;
+	let physical = "3";
 	let physicalMax = 7;
 	$: physical = updateCharacteristic(
 		characteristics.strength,
@@ -56,7 +56,7 @@
 	);
 	$: checkTotal(physical, physicalMax, 'physical');
 
-	let social = 3;
+	let social = "3";
 	let socialMax = 5;
 	$: social = updateCharacteristic(
 		characteristics.charisma,
@@ -70,7 +70,7 @@
 	let secondary = record.secondary;
 	let tertiary = record.tertiary;
 	$: resolveConflicts(primary, secondary, tertiary);
-	const resolveConflicts = () => {
+	const resolveConflicts = (a: string, b: string, c: string) => {
 		if (browser) {
 			try {
 				switch (tertiary) {
@@ -120,7 +120,7 @@
 <Alert
 	id="cha-dupe-error"
 	color="danger"
-	hidden={primary !== secondary && primary !== tertiary && secondary !== tertiary ? '' : null}
+	hidden={primary !== secondary && primary !== tertiary && secondary !== tertiary ? true : null}
 >
 	Each priority (primary, secondary, tertiary) must have a unique characteristic category (mental,
 	physical, social).
