@@ -6,9 +6,7 @@
 		e.preventDefault();
 
 		if (browser) {
-			const form: HTMLFormElement | null = document.querySelector('form#signup-form');
-			if (!form) return;
-			const data = new FormData(form);
+			const data = new FormData(<HTMLFormElement>e.target);
 
 			const dataObj = {
 				username: data.get('username'),
@@ -31,7 +29,7 @@
 </script>
 
 <h1>Sign Up</h1>
-<form method="POST" on:submit={signup} id="signup-form">
+<form method="POST" on:submit={signup}>
 	<label>Username:<input name="username" /></label><br />
 	<label>Password:<input name="password" type="password" /></label><br />
 	<input type="submit" value="Sign Up" />
