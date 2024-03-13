@@ -3,7 +3,7 @@
 	import { TabContent, TabPane } from '@sveltestrap/sveltestrap';
 	import { Modal, ModalFooter } from '@sveltestrap/sveltestrap';
 	import { Button, Spinner, Alert } from '@sveltestrap/sveltestrap';
-	import { baseUrl, characteristics, skills } from '$lib/stores.js';
+	import { baseUrl, characteristics, skills } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { Character } from '$lib/characterTypes';

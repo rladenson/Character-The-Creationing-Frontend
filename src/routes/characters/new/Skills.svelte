@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Input, FormGroup, Alert } from '@sveltestrap/sveltestrap';
 	import { browser } from '$app/environment';
-	import { mentalSkills as mentalList, physicalSkills as physicalList, socialSkills as socialList } from '$lib/stores.js';
+	import { mentalSkills as mentalList, physicalSkills as physicalList, socialSkills as socialList } from '$lib/stores';
 	export let character, record;
 	const mentalSkills = character.mentalSkills;
 	const physicalSkills = character.physicalSkills;

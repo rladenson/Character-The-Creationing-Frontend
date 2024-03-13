@@ -4,7 +4,7 @@
 	import { Button, InputGroup, InputGroupText, Input, Form } from '@sveltestrap/sveltestrap';
 	import { Styles, Icon, Modal, ModalFooter } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
-	import { baseUrl, characteristics, skills } from '$lib/stores.js';
+	import { baseUrl, characteristics, skills } from '$lib/stores';
 	import { Character } from '$lib/characterTypes';
 	import { page } from '$app/stores';
 	import { createPatch } from 'rfc6902';

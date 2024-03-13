@@ -1,4 +1,4 @@
-import { baseUrl } from '$lib/stores.js';
+import { baseUrl } from '$lib/stores';
 import { redirect } from '@sveltejs/kit';
 import { pingServer } from '$lib/pingServer';
 

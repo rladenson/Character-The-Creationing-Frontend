@@ -4,7 +4,7 @@
 	import Characteristics from './Characteristics.svelte';
 	import Overarching from './Overarching.svelte';
 	import Skills from './Skills.svelte';
-	import { baseUrl } from '$lib/stores.js';
+	import { baseUrl } from '$lib/stores';
 	import Misc from './Misc.svelte';
 	import { Character } from '$lib/characterTypes';
 

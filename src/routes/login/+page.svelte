@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { baseUrl } from '$lib/stores.js';
+	import { baseUrl } from '$lib/stores';
 	import { browser } from '$app/environment';
 	const login = async (e: Event) => {
 		e.preventDefault();
