@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import {
 		Input,
 		FormGroup,
@@ -6,7 +6,8 @@
 		InputGroupText,
 		FormCheck
 	} from '@sveltestrap/sveltestrap';
-	export let character;
+	import { type Character } from "$lib/characterTypes";
+	export let character: Character;
 	const width = '40em';
 </script>
 

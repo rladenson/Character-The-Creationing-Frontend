@@ -1,44 +1,29 @@
-<script>
+<script lang="ts">
 	import { Form, Button, Modal } from '@sveltestrap/sveltestrap';
 	import { shallowCopyObj as copy } from '$lib/shallowCopyObj.js';
 	import Characteristics from './Characteristics.svelte';
 	import Overarching from './Overarching.svelte';
 	import Skills from './Skills.svelte';
-	import { baseUrl } from '$lib/stores.js';
+	import { baseUrl } from '$lib/stores';
 	import Misc from './Misc.svelte';
+	import { Character } from '$lib/characterTypes';
 
 	let validated = false;
 	let page = 1;
 	const maxPage = 4;
-	const characterBase = {
-		characteristics: {
-			intelligence: 1,
-			wisdom: 1,
-			willpower: 1,
-			strength: 1,
-			dexterity: 1,
-			constitution: 1,
-			charisma: 1,
-			fellowship: 1,
-			composure: 1
-		},
-		mentalSkills: {},
-		physicalSkills: {},
-		socialSkills: {},
-		level: 1
-	};
+	const characterBase = new Character();
 	const recordBase = {
 		primary: 'Mental',
 		secondary: 'Physical',
 		tertiary: 'Social'
 	};
-	let character = copy(characterBase);
+	let character = new Character();
 	let record = copy(recordBase);
-	let nextAction = '';
+	let nextAction: string | undefined;
 	let open = false;
 	const toggle = () => (open = !open);
 
-	const handleSubmit = (e) => {
+	const handleSubmit = (e: Event) => {
 		e.preventDefault();
 		switch (nextAction) {
 			case '+':
@@ -70,13 +55,13 @@
 			window.location.replace(`/characters/${(await res.json()).character.id}`);
 		else console.log(res);
 	};
-	const handleClick = (e) => {
-		nextAction = e.target.dataset.action;
+	const handleClick = (e: Event) => {
+		nextAction = (<HTMLElement>e.target!).dataset.action;
 		if (page !== 2) {
 			validated = true;
 		}
 	};
-	const resetProgress = (e) => {
+	const resetProgress = (e: Event) => {
 		e.preventDefault();
 		character = copy(characterBase);
 		record = copy(recordBase);
@@ -106,7 +91,7 @@
 		Next Page
 	</Button>
 	<Button on:click={resetProgress}>Reset Progress</Button>
-	<Button on:click={handleClick} data-action=">" hidden={page === maxPage ? null : ''}
-		>Submit</Button
-	>
+	<Button on:click={handleClick} data-action=">" hidden={page === maxPage ? null : true}>
+		Submit
+	</Button>
 </Form>

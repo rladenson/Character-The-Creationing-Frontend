@@ -1,10 +1,10 @@
-<script>
-	import { baseUrl } from '$lib/stores.js';
+<script lang="ts">
+	import { baseUrl } from '$lib/stores';
 	import { browser } from '$app/environment';
-	const login = async (e) => {
+	const login = async (e: Event) => {
 		e.preventDefault();
 		if (browser) {
-			const data = new FormData(e.target);
+			const data = new FormData(<HTMLFormElement>e.target);
 
 			const dataObj = {
 				username: data.get('username'),
@@ -20,7 +20,7 @@
 			});
 
 			if (res.status === 200) {
-				const json = await res.json();
+				const json: object = await res.json();
 				for (const [key, val] of Object.entries(json)) {
 					window.localStorage.setItem(key, val);
 				}

@@ -1,4 +1,5 @@
-<script>
+<script lang="ts">
+	import type { Character } from '$lib/characterTypes';
 	import {
 		Input,
 		FormGroup,
@@ -6,8 +7,15 @@
 		InputGroupText,
 		FormCheck
 	} from '@sveltestrap/sveltestrap';
-	export let character, record;
+	export let character: Character, record: any;
 	const width = '40em';
+
+	const toggleExtraLevels = (e: Event) => {
+		if (!(<HTMLInputElement>e.target).checked) {
+			character.completedClasses = '';
+			character.level = 1;
+		}
+	};
 </script>
 
 <h2>Miscellaneous</h2>
@@ -23,15 +31,7 @@
 <FormGroup>
 	<InputGroup>
 		<InputGroupText>
-			<FormCheck
-				bind:checked={record.showExtraLevels}
-				on:change={(e) => {
-					if (!e.target.checked) {
-						character.completedClasses = undefined;
-						character.level = 1;
-					}
-				}}
-			/>
+			<FormCheck bind:checked={record.showExtraLevels} on:change={toggleExtraLevels} />
 			Start beyond first level?
 		</InputGroupText>
 	</InputGroup>

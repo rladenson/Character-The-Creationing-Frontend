@@ -1,17 +1,19 @@
-<script>
+<script lang="ts">
 	import { Card, CardHeader, CardTitle, CardBody, CardText } from '@sveltestrap/sveltestrap';
 	import { TabContent, TabPane } from '@sveltestrap/sveltestrap';
 	import { Button, InputGroup, InputGroupText, Input, Form } from '@sveltestrap/sveltestrap';
 	import { Styles, Icon, Modal, ModalFooter } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
-	import { baseUrl, characteristics, skills } from '$lib/stores.js';
+	import { baseUrl, characteristics, skills } from '$lib/stores';
+	import { Character } from '$lib/characterTypes';
 	import { page } from '$app/stores';
-	import { shallowCopyObj as copy } from '$lib/shallowCopyObj.js';
 	import { createPatch } from 'rfc6902';
+	import type { Operation } from 'rfc6902/diff.d.ts';
 	let tab = 'overview';
-	let character = {};
-	let characterBase = {};
-	let overviewFields = [
+	let character: Character = new Character();
+	let characterBase: Character = character;
+	type overviewField = [field: string, name: string, required: boolean, type: string];
+	let overviewFields: overviewField[] = [
 		['name', 'Name', true, 'string'],
 		['age', 'Age', false, 'number'],
 		['race', 'Race', true, 'string'],
@@ -22,19 +24,21 @@
 	];
 	const globalStyle = '<style>input::placeholder{font-style:italic}</style>';
 
-	const reset = (e) => {
+	const reset = (e: Event) => {
 		e.preventDefault();
-		let target = e.target;
-		if (target.nodeName === 'I') target = target.parentElement;
-		const field = target.dataset.field;
+		let target: HTMLElement | null = <HTMLElement>e.target;
+		if (target?.nodeName === 'I') target = target?.parentElement;
+		const field = target?.dataset.field;
+		if (!field) return;
 		character[field] = characterBase[field];
 	};
 
-	const resetStat = (e) => {
+	const resetStat = (e: Event) => {
 		e.preventDefault();
-		let target = e.target;
+		let target: HTMLElement | null = <HTMLElement>e.target;
 		if (target.nodeName === 'I') target = target.parentElement;
-		const field = target.dataset.field;
+		const field = target?.dataset.field;
+		if (!field) return;
 		character.stats[field] = characterBase.stats[field];
 	};
 
@@ -54,56 +58,27 @@
 		if (json.userId != window.localStorage.getItem('id'))
 			window.location.replace(`/characters/${char.id}`);
 
-		characterBase = char;
-		characterBase.completedClasses =
-			characterBase.completedClasses && characterBase.completedClasses.length > 0
-				? characterBase.completedClasses.reduce((prev, cur) => {
-						if (prev) prev += ', ' + cur;
-					})
-				: '';
+		characterBase = new Character(char);
 
-		character = copy(characterBase);
-
-		console.log(character);
+		character = new Character(char);
 	});
 
 	let summaryOpen = false;
 	let validated = false;
 	let changed = false;
-	let patch = [];
+	let patch: Operation[] = [];
 	$: changed = JSON.stringify(character) === JSON.stringify(characterBase);
 	let errorOpen = false;
-	let errors = [];
+	let errors: string[] = [];
 	const errorToggle = () => (errorOpen = !errorOpen);
-	let summary = [];
+	let summary: string[][] = [];
 	const summaryToggle = () => {
 		if (summaryOpen) return (summaryOpen = false);
-		const autoPatch = createPatch(characterBase, character);
-		errors = [];
-		summary = [];
-		patch = [];
-		autoPatch.forEach(({ op, path, value }) => {
-			const pathStr = String(path);
-			const pathItems = pathStr.match(/[^\/]+/g);
-			const stat = pathItems[pathItems.length - 1];
-			let oldVal = characterBase;
-			pathItems.forEach((x) => (oldVal = oldVal[x]));
-			value = value.trim();
-			
-			if (stat === 'completedClasses') {
-				return getClassesPatch();
-			}
-			if (oldVal == value) return;
-			if (value === '' && (oldVal === undefined || oldVal === null)) return;
-			if (op === 'replace' && value === '') {
-				patch.push({ op: 'remove', path });
-				summary.push([stat, oldVal, '<Blank>']);
-					return;
-			}
-
-			patch.push({ op, path, value });
-			summary.push([stat, oldVal, value]);
-		});
+		const autoPatch = characterBase.createPatch(character);
+		getClassesPatch();
+		errors = autoPatch.errors;
+		summary = autoPatch.summary;
+		patch = autoPatch.patch;
 		console.log(patch);
 		if (errors.length > 0) return (errorOpen = true);
 		if (patch.length === 0) return;
@@ -111,16 +86,10 @@
 	};
 
 	const getClassesPatch = () => {
-		const oldClasses =
-			characterBase.completedClasses !== '' ? characterBase.completedClasses.split(/, ?/) : [];
-		const midClasses = character.completedClasses.split(/, ?/);
-		if (JSON.stringify(oldClasses) === JSON.stringify(midClasses)) return;
-		const newClasses = [];
-		midClasses.forEach((val) => {
-			val = val.trim();
-			if (val === '') return;
-			newClasses.push(val);
-		});
+		const oldClasses = characterBase.completedClassesArr;
+		character.calculateCompletedClasses();
+		const newClasses = character.completedClassesArr;
+		if (JSON.stringify(oldClasses) === JSON.stringify(newClasses)) return;
 		const classesPatch = createPatch(
 			{ completedClasses: oldClasses },
 			{ completedClasses: newClasses }
@@ -128,10 +97,14 @@
 		if (classesPatch.length === 0) return;
 
 		patch.push(...classesPatch);
-		summary.push(['Completed Classes', oldClasses.length > 0 ? oldClasses : 'None', midClasses]);
+		summary.push([
+			'Completed Classes',
+			oldClasses.length > 0 ? oldClasses.join(', ') : 'None',
+			newClasses.join(', ')
+		]);
 	};
 
-	const submit = async (e) => {
+	const submit = async (e: Event) => {
 		if (patch.length === 0) return;
 		const res = await fetch(`${baseUrl}api/characters/${characterBase.id}`, {
 			method: 'PATCH',
@@ -189,7 +162,7 @@
 				{/if}
 			</CardHeader>
 			<CardBody>
-				<TabContent on:tab={(e) => (tab = e.detail)}>
+				<TabContent on:tab={(e) => (tab = e.detail.toString())}>
 					<TabPane tabId="overview" tab="Overview" active>
 						<ul id="overview-list">
 							{#each overviewFields as [field, name, required, type]}
@@ -225,8 +198,8 @@
 									<InputGroup>
 										<Input
 											style="text-align:center"
-											placeholder={characterBase.stats[stat]}
-											bind:value={character.stats[stat]}
+											placeholder={characterBase.stats[stat].val}
+											bind:value={character.stats[stat].val}
 											required
 											type="number"
 										/>
@@ -244,7 +217,7 @@
 						<br />
 						<h4>Skills</h4>
 						<div id="skillsGrid">
-							{#each skills as { stat, name, advanced, type }}
+							{#each skills as { stat, name, advanced, type }, i}
 								<div>
 									<h5>
 										{name}{#if advanced}*{/if}
@@ -252,8 +225,8 @@
 									<InputGroup>
 										<Input
 											style="text-align:center"
-											placeholder={characterBase.stats[`${type}Skills`][stat]}
-											bind:value={character.stats[`${type}Skills`][stat]}
+											placeholder={characterBase.stats[`${type}Skills`][i % 9].val}
+											bind:value={character.stats[`${type}Skills`][i % 9].val}
 											required
 											type="number"
 										/>

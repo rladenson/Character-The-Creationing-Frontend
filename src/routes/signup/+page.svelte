@@ -1,12 +1,12 @@
-<script>
-	import { baseUrl } from '$lib/stores.js';
+<script lang="ts">
+	import { baseUrl } from '$lib/stores';
 	import { browser } from '$app/environment';
 
-	const signup = async (e) => {
+	const signup = async (e: Event) => {
 		e.preventDefault();
 
 		if (browser) {
-			const data = new FormData(e.target);
+			const data = new FormData(<HTMLFormElement>e.target);
 
 			const dataObj = {
 				username: data.get('username'),

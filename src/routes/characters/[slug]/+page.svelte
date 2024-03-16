@@ -1,25 +1,24 @@
-<script>
+<script lang="ts">
 	import { Card, CardBody, CardHeader, CardText, CardTitle } from '@sveltestrap/sveltestrap';
 	import { TabContent, TabPane } from '@sveltestrap/sveltestrap';
 	import { Modal, ModalFooter } from '@sveltestrap/sveltestrap';
 	import { Button, Spinner, Alert } from '@sveltestrap/sveltestrap';
-	import { baseUrl, characteristics, skills } from '$lib/stores.js';
+	import { baseUrl, characteristics, skills } from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { Character } from '$lib/characterTypes';
 	let tab = 'overview';
 
-	let character = {};
+	let character: Character = new Character();
 	let owner = false;
 
 	let open = false;
 	let status = 'loading';
 
 	onMount(async () => {
-		const token = window.localStorage.getItem("accessToken");
+		const token = window.localStorage.getItem('accessToken');
 		const res = await fetch(baseUrl + `api/characters/${$page.params.slug}`, {
-			headers: {
-				Authorization: token ? ('Bearer ' + token) : null,
-			}
+			headers: new Headers(token ? [['Authorization', `Bearer ${token}`]] : [])
 		});
 		if (res.status !== 200) {
 			window.location.replace('/');
@@ -27,18 +26,17 @@
 
 		const json = await res.json();
 
-		character = json.character;
-		character.derived = json.derivedStats;
+		character = new Character(json.character, json.derivedStats);
 
 		owner = json.userId == window.localStorage.getItem('id');
 
-		status = '';
+		status = 'loaded';
 	});
 
 	const toggleDeletePrompt = () => {
 		open = !open;
 	};
-	const deleteCharacter = async (e) => {
+	const deleteCharacter = async (e: Event) => {
 		e.preventDefault();
 		status = 'deleting';
 		toggleDeletePrompt();
@@ -65,7 +63,7 @@
 	</ModalFooter>
 </Modal>
 
-{#if status === ''}
+{#if status === 'loaded'}
 	<Card>
 		<CardHeader>
 			<CardTitle>
@@ -76,7 +74,7 @@
 			{/if}
 		</CardHeader>
 		<CardBody>
-			<TabContent on:tab={(e) => (tab = e.detail)}>
+			<TabContent on:tab={(e) => (tab = e.detail.toString())}>
 				<TabPane tabId="overview" tab="Overview" active>
 					<ul class="list">
 						<li><strong>Race: </strong>{character.race}<br /></li>
@@ -98,31 +96,31 @@
 				</TabPane>
 				<TabPane tabId="stats" tab="Stats">
 					<ul class="list" id="derived">
-						<li><strong>Static Defense: </strong>{character.derived.staticDefense}</li>
-						<li><strong>Max Hit Points: </strong>{character.derived.maxHP}</li>
-						<li><strong>Mental Defense: </strong>{character.derived.mentalDefense}</li>
-						<li><strong>Resilience: </strong>{character.derived.resilience}</li>
-						<li><strong>Resolve: </strong>{character.derived.resolve}</li>
-						<li><strong>Speed: </strong>{character.derived.speed}</li>
-						<li><strong>Initiative: </strong>{character.derived.initiative}</li>
+						<li><strong>Static Defense: </strong>{character.derived?.staticDefense}</li>
+						<li><strong>Max Hit Points: </strong>{character.derived?.maxHP}</li>
+						<li><strong>Mental Defense: </strong>{character.derived?.mentalDefense}</li>
+						<li><strong>Resilience: </strong>{character.derived?.resilience}</li>
+						<li><strong>Resolve: </strong>{character.derived?.resolve}</li>
+						<li><strong>Speed: </strong>{character.derived?.speed}</li>
+						<li><strong>Initiative: </strong>{character.derived?.initiative}</li>
 					</ul>
 					<h3>Characteristics</h3>
 					<div id="characteristics">
 						{#each characteristics as char}
 							<div>
 								<h5>{char.abbrev}</h5>
-								{character.stats[char.stat]}
+								{character.stats[char.stat].val}
 							</div>
 						{/each}
 					</div>
 					<h3>Skills</h3>
 					<div id="skills">
-						{#each skills as { stat, name, advanced, type }}
+						{#each skills as { stat, name, advanced, type }, i}
 							<div>
 								<h5>
 									{name}{#if advanced}*{/if}
 								</h5>
-								{character.stats[`${type}Skills`][stat]}
+								{character.stats[`${type}Skills`][i % 9].val}
 							</div>
 						{/each}
 					</div>
@@ -136,7 +134,7 @@
 		</CardBody>
 	</Card>
 {:else if status === 'loading'}
-<h1>Loading...</h1>
+	<h1>Loading...</h1>
 {:else if status === 'deleting'}
 	<Alert color="info">
 		<Spinner color="info" />&nbsp;&nbsp;

@@ -1,13 +1,13 @@
-<script>
+<script lang="ts">
 	import { Input, FormGroup, Alert } from '@sveltestrap/sveltestrap';
 	import { browser } from '$app/environment';
-	import { mentalSkills as mentalList, physicalSkills as physicalList, socialSkills as socialList } from '$lib/stores.js';
+	import { mentalSkills as mentalList, physicalSkills as physicalList, socialSkills as socialList } from '$lib/stores';
 	export let character, record;
 	const mentalSkills = character.mentalSkills;
 	const physicalSkills = character.physicalSkills;
 	const socialSkills = character.socialSkills;
 
-	const checkTotal = (stat, statMax, statName) => {
+	const checkTotal = (stat: string, statMax: number, statName: string) => {
 		switch (statName) {
 			case 'mental':
 				mental = updateSkill(mentalSkills, mentalMax);
@@ -20,7 +20,7 @@
 				break;
 		}
 	};
-	const updateSkill = (obj, statMax) => {
+	const updateSkill = (obj: object, statMax: number) => {
 		if (Object.entries(obj).length == 0) return '0 out of ' + statMax;
 		const val = Object.entries(obj).reduce((prev, [stat, val]) => {
 			return prev + Number(val || 0);
@@ -28,17 +28,17 @@
 		return Number(val || 0) + ' out of ' + statMax;
 	};
 
-	let mental = 0;
+	let mental = "0";
 	let mentalMax = 8;
 	$: mental = updateSkill(mentalSkills, mentalMax);
 	$: checkTotal(mental, mentalMax, 'mental');
 
-	let physical = 0;
+	let physical = "0";
 	let physicalMax = 6;
 	$: physical = updateSkill(physicalSkills, physicalMax);
 	$: checkTotal(physical, physicalMax, 'physical');
 
-	let social = 0;
+	let social = "0";
 	let socialMax = 4;
 	$: social = updateSkill(socialSkills, socialMax);
 	$: checkTotal(social, socialMax, 'social');
@@ -46,7 +46,7 @@
 	let primary = record.primary;
 	let secondary = record.secondary;
 	let tertiary = record.tertiary;
-	$: resolveConflicts(primary, secondary, tertiary);
+	$: resolveConflicts();
 	const resolveConflicts = () => {
 		if (browser) {
 			try {
@@ -97,7 +97,7 @@
 <Alert
 	id="cha-dupe-error"
 	color="danger"
-	hidden={primary !== secondary && primary !== tertiary && secondary !== tertiary ? '' : null}
+	hidden={primary !== secondary && primary !== tertiary && secondary !== tertiary ? true : null}
 >
 	Each priority (primary, secondary, tertiary) must have a unique skill category (mental, physical,
 	social).
