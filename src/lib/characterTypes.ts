@@ -1,3 +1,6 @@
+import type { Operation } from 'rfc6902/diff.d.ts';
+import { characteristics } from './stores';
+
 export class Character {
 	[key: string]: any;
 
@@ -39,6 +42,63 @@ export class Character {
 		arr.forEach((item) => {
 			if (item.trim() !== '') this.completedClassesArr.push(item);
 		});
+	}
+
+	createPatch(newChar: Character): { patch: Operation[]; errors: string[]; summary: string[][] } {
+		const patch: Operation[] = [];
+		const errors: string[] = [];
+		const summary: string[][] = [];
+
+		const requiredFields = ['name', 'race', 'exaltation', 'resource', 'power', 'currentClass'];
+		const optionalFields = ['age', 'campaign', 'alignment'];
+
+		requiredFields.forEach((field) => {
+			console.log(field, this[field], newChar[field]);
+			if (newChar[field].trim() === '') return errors.push(field);
+			if (this[field] === newChar[field].trim()) return;
+			addChange(patch, summary, this[field], newChar[field].trim(), `/${field}`, field, 'replace');
+		});
+		optionalFields.forEach((field) => {
+			if (isEmpty(this[field]) && isEmpty(newChar[field])) return;
+			if (isEmpty(newChar[field]))
+				return addChange(patch, summary, this[field], null, `/${field}`, field, 'remove');
+			if (this[field] === newChar[field].trim()) return;
+			addChange(patch, summary, this[field], newChar[field].trim(), `/${field}`, field, 'replace');
+		});
+
+		this.stats.createPatch(newChar.stats, { patch, errors, summary });
+
+		return { patch, errors, summary };
+	}
+}
+
+function isEmpty(a: any) {
+	return (
+		a === null ||
+		a === undefined ||
+		(typeof a === 'string' && a.trim() === '') ||
+		(typeof a === 'number' && isNaN(a))
+	);
+}
+
+function addChange(
+	patch: Operation[],
+	summary: string[][],
+	oldVal: any,
+	newVal: any,
+	path: string,
+	fieldName: string,
+	op: string
+) {
+	switch (op) {
+		case 'replace':
+			patch.push({ op, path, value: newVal });
+			summary.push([fieldName, oldVal.toString(), newVal.toString()]);
+			break;
+		case 'remove':
+			patch.push({ op, path });
+			summary.push([fieldName, oldVal.toString(), '<blank>']);
+			break;
 	}
 }
 
@@ -343,6 +403,76 @@ class CharacterStats {
 		this.socialSkills[6].val = char?.stats.socialSkills.performer ?? 0;
 		this.socialSkills[7].val = char?.stats.socialSkills.persuasion ?? 0;
 		this.socialSkills[8].val = char?.stats.socialSkills.scrutiny ?? 0;
+	}
+
+	createPatch(
+		newStats: CharacterStats,
+		{ patch, errors, summary }: { patch: Operation[]; errors: string[]; summary: string[][] }
+	) {
+		characteristics.forEach(({ stat }) => {
+			const num: number = newStats[stat].val;
+			if (isNaN(num) || num < 1) return errors.push(this[stat].name);
+			if (this[stat].val === num) return;
+			addChange(patch, summary, this[stat].val, num, `/stats/${stat}`, stat, 'replace');
+		});
+		this.mentalSkills.forEach((field: Skill, i: number) => {
+			const num = newStats.mentalSkills[i].val;
+			if (isNaN(num) || num < 0) return errors.push(this.mentalSkills[i].name);
+			if (this.mentalSkills[i].val === num) return;
+			addChange(
+				patch,
+				summary,
+				this.mentalSkills[i].val,
+				num,
+				`/stats/mentalSkills/${field.stat}`,
+				field.name,
+				'replace'
+			);
+		});
+		this.physicalSkills.forEach((field: Skill, i: number) => {
+			const num = newStats.physicalSkills[i].val;
+			if (isNaN(num) || num < 0) return errors.push(this.physicalSkills[i].name);
+			if (this.physicalSkills[i].val === num) return;
+			addChange(
+				patch,
+				summary,
+				this.physicalSkills[i].val,
+				num,
+				`/stats/physicalSkills/${field.stat}`,
+				field.name,
+				'replace'
+			);
+		});
+		this.socialSkills.forEach((field: Skill, i: number) => {
+			const num = newStats.socialSkills[i].val;
+			if (isNaN(num) || num < 0) return errors.push(this.socialSkills[i].name);
+			if (this.socialSkills[i].val === num) return;
+			addChange(
+				patch,
+				summary,
+				this.socialSkills[i].val,
+				num,
+				`/stats/socialSkills/${field.stat}`,
+				field.name,
+				'replace'
+			);
+		});
+
+		// level, size, xp
+		if (this.level !== newStats.level) {
+			if (isEmpty(newStats.level) || newStats.level < 1 || newStats.level > 5) errors.push('Level');
+			else
+				addChange(patch, summary, this.level, newStats.level, '/stats/level', 'Level', 'replace');
+		}
+		if (this.size !== newStats.size) {
+			if (isEmpty(newStats.size) || newStats.size < 1) errors.push('size');
+			else addChange(patch, summary, this.size, newStats.size, '/stats/size', 'Size', 'replace');
+		}
+		if (this.xp !== newStats.xp) {
+			if (isEmpty(newStats.xp))
+				addChange(patch, summary, this.xp, null, '/stats/xp', 'XP', 'remove');
+			else addChange(patch, summary, this.xp, newStats.xp, '/stats/xp', 'XP', 'replace');
+		}
 	}
 
 	getAcademicLore() {

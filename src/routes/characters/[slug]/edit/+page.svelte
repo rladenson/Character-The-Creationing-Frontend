@@ -74,32 +74,11 @@
 	let summary: string[][] = [];
 	const summaryToggle = () => {
 		if (summaryOpen) return (summaryOpen = false);
-		const autoPatch = createPatch(characterBase, character);
-		errors = [];
-		summary = [];
-		patch = [];
-		autoPatch.forEach((item) => {
-			// const pathItems = item.path.match(/[^\/]+/g);
-			// if(!pathItems) return;
-			// const stat = pathItems[pathItems.length - 1];
-			// let oldVal = characterBase;
-			// pathItems.forEach((x) => (oldVal = oldVal[x]));
-			// if (stat === 'completedClasses') {
-			// 	return getClassesPatch();
-			// }
-			// if("value" in item) {
-			// 	item.value = item.value.trim();
-			// 	if (oldVal == item.value) return;
-			// }
-			// if (value === '' && (oldVal === undefined || oldVal === null)) return;
-			// if (op === 'replace' && value === '') {
-			// 	patch.push({ op: 'remove', path });
-			// 	summary.push([stat, oldVal, '<Blank>']);
-			// 	return;
-			// }
-			// patch.push({ op, path, value });
-			// summary.push([stat, oldVal, value]);
-		});
+		const autoPatch = characterBase.createPatch(character);
+		getClassesPatch();
+		errors = autoPatch.errors;
+		summary = autoPatch.summary;
+		patch = autoPatch.patch;
 		console.log(patch);
 		if (errors.length > 0) return (errorOpen = true);
 		if (patch.length === 0) return;
