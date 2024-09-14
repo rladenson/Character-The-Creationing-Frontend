@@ -2,7 +2,7 @@
 	import { Card, CardHeader, CardTitle, CardBody, CardText } from '@sveltestrap/sveltestrap';
 	import { TabContent, TabPane } from '@sveltestrap/sveltestrap';
 	import { Button, InputGroup, InputGroupText, Input, Form } from '@sveltestrap/sveltestrap';
-	import { Styles, Icon, Modal, ModalFooter } from '@sveltestrap/sveltestrap';
+	import { Icon, Modal, ModalFooter } from '@sveltestrap/sveltestrap';
 	import { onMount } from 'svelte';
 	import { baseUrl, characteristics, skills } from '$lib/stores';
 	import { Character } from '$lib/characterTypes';
@@ -249,8 +249,6 @@
 			</CardBody>
 		</Card>
 	</Form>
-
-	<Styles />
 
 	{@html globalStyle}
 {:else}
