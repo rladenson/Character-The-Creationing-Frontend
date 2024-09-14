@@ -5,7 +5,7 @@
 <div>
     <h1>Character the Creationing</h1>
     <h2>A character creator for the TTRPG system <a href="https://dtd.wikidot.com" target="_blank">Dungeons The Dragoning</a></h2>
-    <br><br><br>
+    <br /><br /><br />
     <span>
         <Card>
             <CardHeader>

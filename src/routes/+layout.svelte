@@ -49,6 +49,7 @@
 	<main>
 		<slot />
 	</main>
+	<br /><br />
 	<footer>
 		<Navbar color="dark" theme="dark">
 			<Nav theme="dark">
@@ -81,6 +82,7 @@
 		flex: 1 0;
 	}
 	footer {
+		padding-top: 1em;
 		flex: 0 0;
 	}
 </style>
